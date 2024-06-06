@@ -28,6 +28,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.web3j:core:5.0.0")
 	implementation("org.mapstruct:mapstruct:1.5.5.Final")
+	implementation("org.openapitools:jackson-databind-nullable:0.2.6")
 	annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
 	runtimeOnly("org.postgresql:postgresql:42.7.3")
 	runtimeOnly("com.h2database:h2:2.2.224")

@@ -1,0 +1,6 @@
+1. Soft delete. Instead on deleting accounts permanently set "deleted" flag - usual transactions become forbidden,
+also restrict auth. Think about timestamping deletion moment.
+2. Different restrictions/output depending on the role
+3. Create case insensitive constraint on username in db. Or think through another method of dealing with case
+sensitivity in usernames.
+4. Test emails with uppercase letters and trailing spaces
