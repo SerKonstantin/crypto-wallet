@@ -13,8 +13,9 @@ public class UserRegistrationDTO {
 
     @NotEmpty
     @Size(min = 3)
-    @Pattern(regexp = "^[a-zA-Z0-9._-]+$", message = "Username must contain only letters, numbers, underscores (_), hyphens (-), and periods (.)")
-    private String username;
+    @Pattern(regexp = "^[a-zA-Z0-9._-]+$",
+            message = "User name must contain only letters, numbers, underscores (_), hyphens (-), and periods (.)")
+    private String nickname;
 
     @NotEmpty
     @Size(min = 8)

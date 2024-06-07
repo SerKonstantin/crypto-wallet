@@ -29,7 +29,7 @@ public class UserController {
 
     @PostMapping("")
     public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody UserRegistrationDTO data) {
-        var userDTO = userService.save(data);
+        var userDTO = userService.register(data);
         return new ResponseEntity<>(userDTO, HttpStatus.CREATED);
     }
 
