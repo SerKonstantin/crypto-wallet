@@ -1,3 +1,6 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
 	application
 	id("org.springframework.boot") version "3.3.0"
@@ -28,15 +31,22 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 	implementation("org.web3j:core:5.0.0")
+
 	implementation("org.mapstruct:mapstruct:1.5.5.Final")
 	implementation("org.openapitools:jackson-databind-nullable:0.2.6")
 	annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
+
 	runtimeOnly("org.postgresql:postgresql:42.7.3")
 	runtimeOnly("com.h2database:h2:2.2.224")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	implementation("org.instancio:instancio-junit:4.5.0")
+	implementation("net.datafaker:datafaker:2.1.0")
+
+	implementation("org.springframework.boot:spring-boot-starter-logging")
+	developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
 
 application {
@@ -45,6 +55,11 @@ application {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	testLogging {
+		exceptionFormat = TestExceptionFormat.FULL
+		events = mutableSetOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.STANDARD_OUT)
+		showStandardStreams = true
+	}
 }
 
 checkstyle {
