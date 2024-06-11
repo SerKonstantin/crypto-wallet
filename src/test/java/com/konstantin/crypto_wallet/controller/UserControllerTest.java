@@ -8,7 +8,6 @@ import com.konstantin.crypto_wallet.dto.user.UserUpdateDTO;
 import com.konstantin.crypto_wallet.model.User;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import com.konstantin.crypto_wallet.util.TestUtils;
-import net.datafaker.Faker;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -130,17 +129,18 @@ public class UserControllerTest {
     }
 
     private Stream<Arguments> supplyRegisterAndUpdateWithInvalidData() {
-        var faker = new Faker();
+        testUtils.generateData();
+        var user = testUtils.getTestUser();
         return Stream.of(
-                Arguments.of("!@#$%^&*()[]{}", faker.internet().emailAddress(), faker.internet().password(8, 100)),
-                Arguments.of("", faker.internet().emailAddress(), faker.internet().password(8, 100)),
-                Arguments.of(null, faker.internet().emailAddress(), faker.internet().password(8, 100)),
-                Arguments.of(faker.name().firstName(), "not_email", faker.internet().password(8, 100)),
-                Arguments.of(faker.name().firstName(), "", faker.internet().password(8, 100)),
-                Arguments.of(faker.name().firstName(), null, faker.internet().password(8, 100)),
-                Arguments.of(faker.name().firstName(), faker.internet().emailAddress(), "qwerty"),
-                Arguments.of(faker.name().firstName(), faker.internet().emailAddress(), ""),
-                Arguments.of(faker.name().firstName(), faker.internet().emailAddress(), null)
+                Arguments.of("!@#$%^&*()[]{}", user.getEmail(), user.getPassword()),
+                Arguments.of("", user.getEmail(), user.getPassword()),
+                Arguments.of(null, user.getEmail(), user.getPassword()),
+                Arguments.of(user.getNickname(), "not_email", user.getPassword()),
+                Arguments.of(user.getNickname(), "", user.getPassword()),
+                Arguments.of(user.getNickname(), null, user.getPassword()),
+                Arguments.of(user.getNickname(), user.getEmail(), "qwerty"),
+                Arguments.of(user.getNickname(), user.getEmail(), ""),
+                Arguments.of(user.getNickname(), user.getEmail(), null)
         );
     }
 
