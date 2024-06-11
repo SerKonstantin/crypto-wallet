@@ -3,6 +3,7 @@ package com.konstantin.crypto_wallet.service;
 import com.konstantin.crypto_wallet.dto.user.UserDTO;
 import com.konstantin.crypto_wallet.dto.user.UserRegistrationDTO;
 import com.konstantin.crypto_wallet.dto.user.UserUpdateDTO;
+import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
 import com.konstantin.crypto_wallet.mapper.UserMapper;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,14 +34,14 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserDTO getById(Long id) {
         var user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return userMapper.map(user);
     }
 
     @Transactional
     public UserDTO update(UserUpdateDTO data, Long id) {
         var user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         userMapper.update(data, user);
 
         if (data.getPassword() != null) {

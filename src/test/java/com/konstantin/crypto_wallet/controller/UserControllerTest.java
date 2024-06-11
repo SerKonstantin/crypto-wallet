@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.konstantin.crypto_wallet.dto.auth.AuthRequest;
 import com.konstantin.crypto_wallet.dto.user.UserRegistrationDTO;
 import com.konstantin.crypto_wallet.dto.user.UserUpdateDTO;
+import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
 import com.konstantin.crypto_wallet.model.User;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import com.konstantin.crypto_wallet.util.TestUtils;
@@ -105,7 +106,7 @@ public class UserControllerTest {
         mockMvc.perform(request).andExpect(status().isCreated());
 
         var user = userRepository.findByEmail(userRegistrationDTO.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         assertThat(user.getId()).isPositive();
         assertThat(user.getNickname()).isEqualTo(userRegistrationDTO.getNickname());
         assertThat(user.getEmail()).isEqualTo(userRegistrationDTO.getEmail());
@@ -185,7 +186,7 @@ public class UserControllerTest {
         mockMvc.perform(request).andExpect(status().isOk());
 
         var updatedUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         assertThat(updatedUser.getNickname()).isEqualTo(userUpdateDto.getNickname().get());
         assertThat(updatedUser.getEmail()).isEqualTo(userUpdateDto.getEmail().get());
         assertThat(updatedUser.getPassword()).isNotEmpty().isNotEqualTo(testUser.getPassword())
@@ -207,7 +208,7 @@ public class UserControllerTest {
         mockMvc.perform(request).andExpect(status().isOk());
 
         var updatedUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         assertThat(updatedUser.getNickname()).isEqualTo(userUpdateDto.getNickname().get());
     }
 
