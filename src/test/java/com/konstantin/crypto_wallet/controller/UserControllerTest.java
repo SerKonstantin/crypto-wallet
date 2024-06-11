@@ -234,6 +234,6 @@ public class UserControllerTest {
                 .with(token)
                 .param("confirmation", "I want to delete my account permanently");
         mockMvc.perform(request).andExpect(status().isNoContent());
-        assertThat(userRepository.findById(id).isEmpty());
+        assertThat(userRepository.findById(id)).isEmpty();
     }
 }
