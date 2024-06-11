@@ -146,6 +146,19 @@ public class UserControllerTest {
     }
 
     @Test
+    public void testRegisterDuplicateEmail() throws Exception {
+        var userRegistrationDTO = new UserRegistrationDTO();
+        userRegistrationDTO.setNickname("new_user");
+        userRegistrationDTO.setEmail(testUser.getEmail().toUpperCase());
+        userRegistrationDTO.setPassword("qwertyuiop");
+
+        var request = post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(userRegistrationDTO));
+        mockMvc.perform(request).andExpect(status().isConflict());
+    }
+
+    @Test
     public void testGetUserById() throws Exception {
         var id = testUser.getId();
         var request = get("/api/users/" + id).with(token);

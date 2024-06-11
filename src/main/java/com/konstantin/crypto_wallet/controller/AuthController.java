@@ -21,7 +21,7 @@ public class AuthController {
     @PostMapping("/login")
     public String create(@RequestBody AuthRequest authRequest) {
         var authentication = new UsernamePasswordAuthenticationToken(
-                authRequest.getUsername(), authRequest.getPassword());
+                authRequest.getUsername().toLowerCase().trim(), authRequest.getPassword().trim());
 
         authenticationManager.authenticate(authentication);
 
