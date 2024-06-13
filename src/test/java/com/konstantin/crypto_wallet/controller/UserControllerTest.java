@@ -175,14 +175,16 @@ public class UserControllerTest {
         mockMvc.perform(get("/api/users/" + id)).andExpect(status().isUnauthorized());
     }
 
-    // TODO token validation need to be fixed
-//    @Test
-//    public void testGetOtherUserUnauthorized() throws Exception {
-//        var otherToken = jwt().jwt(builder -> builder.subject("other_user"));
-//        var id = testUser.getId();
-//        var request = get("/api/users/" + id).with(otherToken);
-//        mockMvc.perform(request).andExpect(status().isUnauthorized());
-//    }
+    @Test
+    public void testGetByOtherUser() throws Exception {
+        testUtils.generateData();
+        var otherUser = testUtils.getTestUser();
+        userRepository.save(otherUser);
+        var otherToken = jwt().jwt(builder -> builder.subject(otherUser.getEmail()));
+        var request = get("/api/users/" + testUser.getId()).with(otherToken);
+        mockMvc.perform(request).andExpect(status().isForbidden());
+        userRepository.deleteById(otherUser.getId());
+    }
 
     @Test
     public void testUpdateUser() throws Exception {
@@ -241,6 +243,23 @@ public class UserControllerTest {
     }
 
     @Test
+    public void testUpdateByOtherUser() throws Exception {
+        testUtils.generateData();
+        var otherUser = testUtils.getTestUser();
+        userRepository.save(otherUser);
+        var otherToken = jwt().jwt(builder -> builder.subject(otherUser.getEmail()));
+
+        var userUpdateDto = new UserUpdateDTO();
+        userUpdateDto.setNickname(JsonNullable.of(otherUser.getNickname()));
+        var request = put("/api/users/" + testUser.getId())
+                .with(otherToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(userUpdateDto));
+        mockMvc.perform(request).andExpect(status().isForbidden());
+        userRepository.deleteById(otherUser.getId());
+    }
+
+    @Test
     public void testDeleteUser() throws Exception {
         var id = testUser.getId();
         assertThat(userRepository.findById(id)).isPresent();
@@ -249,5 +268,18 @@ public class UserControllerTest {
                 .param("confirmation", "I want to delete my account permanently");
         mockMvc.perform(request).andExpect(status().isNoContent());
         assertThat(userRepository.findById(id)).isEmpty();
+    }
+
+    @Test
+    public void testDeleteByOtherUser() throws Exception {
+        testUtils.generateData();
+        var otherUser = testUtils.getTestUser();
+        userRepository.save(otherUser);
+        var otherToken = jwt().jwt(builder -> builder.subject(otherUser.getEmail()));
+        var request = delete("/api/users/" + testUser.getId())
+                .with(otherToken)
+                .param("confirmation", "I want to delete my account permanently");
+        mockMvc.perform(request).andExpect(status().isForbidden());
+        userRepository.deleteById(otherUser.getId());
     }
 }
