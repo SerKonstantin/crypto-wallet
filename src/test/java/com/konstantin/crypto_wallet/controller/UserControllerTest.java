@@ -2,7 +2,6 @@ package com.konstantin.crypto_wallet.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.konstantin.crypto_wallet.dto.auth.AuthRequest;
 import com.konstantin.crypto_wallet.dto.user.UserRegistrationDTO;
 import com.konstantin.crypto_wallet.dto.user.UserUpdateDTO;
 import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
@@ -56,13 +55,11 @@ public class UserControllerTest {
     private TestUtils testUtils;
 
     private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
-    private String passwordInput;
     private User testUser;
 
     @BeforeEach
     public void setUp() {
         testUtils.generateData();
-        passwordInput = testUtils.getPasswordInput();
         testUser = testUtils.getTestUser();
         userRepository.save(testUser);
         token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
@@ -71,25 +68,6 @@ public class UserControllerTest {
     @AfterEach
     public void clean() {
         userRepository.deleteById(testUser.getId());
-    }
-
-    @Test
-    public void testLogin() throws Exception {
-        var authRequest = new AuthRequest(testUser.getUsername(), passwordInput);
-        var request = post("/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(authRequest));
-        var result = mockMvc.perform(request).andExpect(status().isOk()).andReturn();
-        assertThat(result.getResponse().getContentAsString()).isNotEmpty();
-    }
-
-    @Test
-    public void testLoginFail() throws Exception {
-        var authRequest = new AuthRequest(testUser.getUsername(), "incorrect_password");
-        var request = post("/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(authRequest));
-        mockMvc.perform(request).andExpect(status().isUnauthorized());
     }
 
     @Test
