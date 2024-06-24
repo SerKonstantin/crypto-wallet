@@ -1,5 +1,6 @@
 package com.konstantin.crypto_wallet.util;
 
+import com.konstantin.crypto_wallet.config.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -20,7 +21,7 @@ public class JWTUtils {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
-                .expiresAt(now.plus(1, ChronoUnit.HOURS))
+                .expiresAt(now.plus(Constants.TOKEN_EXPIRATION_TIME, ChronoUnit.MILLIS))
                 .subject(username)
                 .build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
