@@ -29,7 +29,8 @@ jobs:
           ./gradlew build
           ./gradlew checkstyleMain checkstyleTest
           ./gradlew test
-        env: ${{ secrets.INFURA_API_KEY }}
+        env:
+          INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
 
       - name: Publish code coverage
         uses: paambaati/codeclimate-action@v5.0.0
