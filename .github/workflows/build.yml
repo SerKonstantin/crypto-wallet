@@ -24,9 +24,12 @@ jobs:
         with:
           gradle-version: 8.5
 
-      - run: ./gradlew build
-      - run: ./gradlew checkstyleMain checkstyleTest
-      - run: ./gradlew test
+      - name: Build and Test
+        run: |
+          ./gradlew build
+          ./gradlew checkstyleMain checkstyleTest
+          ./gradlew test
+        env: ${{ secrets.INFURA_API_KEY }}
 
       - name: Publish code coverage
         uses: paambaati/codeclimate-action@v5.0.0
