@@ -31,6 +31,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 	implementation("org.web3j:core:5.0.0")
+	implementation("org.web3j:crypto:5.0.0")
 
 	implementation("org.mapstruct:mapstruct:1.5.5.Final")
 	implementation("org.openapitools:jackson-databind-nullable:0.2.6")
@@ -47,6 +48,8 @@ dependencies {
 
 	implementation("org.springframework.boot:spring-boot-starter-logging")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+	implementation ("io.github.cdimascio:dotenv-java:3.0.0")
 }
 
 application {

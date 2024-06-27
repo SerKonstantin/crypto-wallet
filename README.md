@@ -5,3 +5,4 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/79a90bbdcc37973693d5/test_coverage)](https://codeclimate.com/github/SerKonstantin/crypto-wallet/test_coverage)
 
 TODO description
+TODO add instructions for local install, should add .env file with INFURA_API_KEY
