@@ -4,7 +4,7 @@ import com.konstantin.crypto_wallet.dto.user.UserDTO;
 import com.konstantin.crypto_wallet.dto.user.UserRegistrationDTO;
 import com.konstantin.crypto_wallet.dto.user.UserUpdateDTO;
 import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
-import com.konstantin.crypto_wallet.exception.UserAlreadyExistsException;
+import com.konstantin.crypto_wallet.exception.ResourceAlreadyExistsException;
 import com.konstantin.crypto_wallet.mapper.UserMapper;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import com.konstantin.crypto_wallet.util.UserUtils;
@@ -30,10 +30,10 @@ public class UserService {
         var user = userMapper.map(data);
         UserUtils.normalize(user);
         if (userRepository.findByNicknameIgnoreCase(user.getNickname()).isPresent()) {
-            throw new UserAlreadyExistsException("User with nickname " + user.getNickname() + " already exists");
+            throw new ResourceAlreadyExistsException("User with nickname " + user.getNickname() + " already exists");
         }
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new UserAlreadyExistsException("User with email " + user.getEmail() + " already exists");
+            throw new ResourceAlreadyExistsException("User with email " + user.getEmail() + " already exists");
         }
         user.setPassword(passwordEncoder.encode(data.getPassword()));
         userRepository.save(user);
