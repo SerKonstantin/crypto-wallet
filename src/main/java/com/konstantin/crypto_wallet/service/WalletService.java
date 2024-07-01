@@ -72,16 +72,15 @@ public class WalletService {
     public WalletDTO updateWalletBySlug(String slug, WalletUpdateDTO walletUpdateDTO) {
         var userId = userUtils.getCurrentUser().getId();
         var wallet = getWalletByUserIdAndSlug(userId, slug);
-        walletMapper.update(walletUpdateDTO, wallet);
-
         var wallets = wallet.getUser().getWallets();
-        if (wallets.stream().anyMatch(w -> w.getName().equals(wallet.getName()))) {
+
+        if (wallets.stream().anyMatch(w -> w.getName().equals(walletUpdateDTO.getName()))) {
             throw new ResourceAlreadyExistsException("A wallet with this name already exists");
         }
 
+        walletMapper.update(walletUpdateDTO, wallet);
         var updatedSlug = SlugUtilsForWallet.toUniqueSlug(wallet.getName(), wallets);
         wallet.setSlug(updatedSlug);
-
         walletRepository.save(wallet);
         return walletMapper.map(wallet);
     }
