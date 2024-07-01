@@ -31,6 +31,7 @@ public class TestUtils {
                 .supply(Select.field(User::getPassword), () -> password)
                 .ignore(Select.field(User::getCreatedAt))
                 .ignore(Select.field(User::getUpdatedAt))
+                .ignore(Select.field(User::getWallets))
                 .create();
     }
 
