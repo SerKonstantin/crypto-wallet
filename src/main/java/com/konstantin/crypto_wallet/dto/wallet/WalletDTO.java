@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class WalletDTO {
-    private Long id;
     private String address;
     private String name;
+    private String slug;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

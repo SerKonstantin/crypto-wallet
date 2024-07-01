@@ -30,7 +30,8 @@ public class Wallet {
     private Long id;
 
     private String address;
-    private String name; // Human-readable name
+    private String name;
+    private String slug;
 
     @CreatedDate
     @Column(updatable = false)

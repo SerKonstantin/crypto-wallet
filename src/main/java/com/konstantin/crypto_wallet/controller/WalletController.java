@@ -39,24 +39,24 @@ public class WalletController {
         return new ResponseEntity<>(walletsDTO, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<WalletDTO> shotWalletById(@PathVariable Long id) {
-        var walletDTO = walletService.getWalletById(id);
+    @GetMapping("/{slug}")
+    public ResponseEntity<WalletDTO> shotWallet(@PathVariable String slug) {
+        var walletDTO = walletService.getWalletBySlug(slug);
         return new ResponseEntity<>(walletDTO, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<WalletDTO> updateWallet(@PathVariable Long id, @Valid @RequestBody WalletUpdateDTO data) {
-        var walletDTO = walletService.updateWallet(id, data);
+    @PutMapping("/{slug}")
+    public ResponseEntity<WalletDTO> updateWallet(@PathVariable String slug, @Valid @RequestBody WalletUpdateDTO data) {
+        var walletDTO = walletService.updateWalletBySlug(slug, data);
         return new ResponseEntity<>(walletDTO, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteWallet(@PathVariable Long id, @RequestParam String confirmation) {
+    @DeleteMapping("/{slug}")
+    public ResponseEntity<Void> deleteWallet(@PathVariable String slug, @RequestParam String confirmation) {
         if (!confirmation.equals("I want to delete this wallet permanently")) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        walletService.deleteWallet(id);
+        walletService.deleteWallet(slug);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

@@ -49,7 +49,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-logging")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-	implementation ("io.github.cdimascio:dotenv-java:3.0.0")
+	implementation ("io.github.cdimascio:dotenv-java:3.0.0") // Read local api key from .env for tests
+	implementation("net.gcardone.junidecode:junidecode:0.5.1") // For wallet slugs
 }
 
 application {
