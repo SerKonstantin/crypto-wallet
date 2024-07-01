@@ -55,7 +55,9 @@ public class WalletControllerTest {
     private TestUtils testUtils;
 
     private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
+    private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor otherUserToken;
     private User testUser;
+    private User otherUser;
     private Wallet testWallet;
 
     @BeforeEach
@@ -66,19 +68,24 @@ public class WalletControllerTest {
         userRepository.save(testUser);
         walletRepository.save(testWallet);
         token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
+
+        testUtils.generateData();
+        otherUser = testUtils.getTestUser();
+        userRepository.save(otherUser);
+        otherUserToken = jwt().jwt(builder -> builder.subject(otherUser.getEmail()));
     }
 
     @AfterEach
     public void clean() {
         walletRepository.deleteById(testWallet.getId());
         userRepository.deleteById(testUser.getId());
+        userRepository.deleteById(otherUser.getId());
     }
 
     @Test
     public void testCreateWallet() throws Exception {
-        testUtils.generateData();
         var walletCreateDTO = new WalletCreateDTO();
-        walletCreateDTO.setAddress(testUtils.getTestWallet().getAddress());
+        walletCreateDTO.setAddress("0xb794f5ea0ba39494ce839613fffba74279579268");
         walletCreateDTO.setName("Henkilökohtainen");
 
         var request = post("/api/wallets")
@@ -135,6 +142,7 @@ public class WalletControllerTest {
     public void testShowWallet() throws Exception {
         var request = get("/api/wallets/" + testWallet.getSlug());
         mockMvc.perform(request).andExpect(status().isUnauthorized());
+        mockMvc.perform(request.with(otherUserToken)).andExpect(status().isNotFound());
         mockMvc.perform(request.with(token)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(testWallet.getName()))
                 .andExpect(jsonPath("$.address").value(testWallet.getAddress()));
@@ -149,6 +157,7 @@ public class WalletControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(walletUpdateDTO));
         mockMvc.perform(request).andExpect(status().isUnauthorized());
+        mockMvc.perform(request.with(otherUserToken)).andExpect(status().isNotFound());
         mockMvc.perform(request.with(token)).andExpect(status().isOk());
 
         var updatedWallet = walletRepository.findById(testWallet.getId())
@@ -175,6 +184,7 @@ public class WalletControllerTest {
         var request = delete("/api/wallets/" + testWallet.getSlug())
                 .param("confirmation", "I want to delete this wallet permanently");
         mockMvc.perform(request).andExpect(status().isUnauthorized());
+        mockMvc.perform(request.with(otherUserToken)).andExpect(status().isNotFound());
         mockMvc.perform(request.with(token)).andExpect(status().isNoContent());
         assertThat(walletRepository.findById(testWallet.getId())).isEmpty();
     }
