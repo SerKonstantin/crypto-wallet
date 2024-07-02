@@ -3,6 +3,7 @@ package com.konstantin.crypto_wallet.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.konstantin.crypto_wallet.dto.wallet.WalletCreateDTO;
+import com.konstantin.crypto_wallet.dto.wallet.WalletImportDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletUpdateDTO;
 import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
 import com.konstantin.crypto_wallet.model.User;
@@ -187,5 +188,54 @@ public class WalletControllerTest {
         mockMvc.perform(request.with(otherUserToken)).andExpect(status().isNotFound());
         mockMvc.perform(request.with(token)).andExpect(status().isNoContent());
         assertThat(walletRepository.findById(testWallet.getId())).isEmpty();
+    }
+
+    @Test
+    public void testImportWallet() throws Exception {
+        var walletImportDTO = new WalletImportDTO();
+        walletImportDTO.setPrivateKey("1383ad52dca31407f1955d25c79785ff75249cf975d481c7d3a1c96ea9e638a5");
+        walletImportDTO.setName("Imported Wallet");
+
+        var request = post("/api/wallets/import")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(walletImportDTO));
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
+        mockMvc.perform(request.with(token)).andExpect(status().isCreated());
+
+        var wallets = walletRepository.findByUserId(testUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Wallets not found"));
+        assertThat(wallets).hasSize(2);
+        var wallet = wallets.get(1);
+        assertThat(wallet.getAddress()).isEqualTo("0xab14868d1abd7de5810e70ed3029239a09625d08");
+        assertThat(wallet.getName()).isEqualTo("Imported Wallet");
+        assertThat(wallet.getSlug()).isEqualTo("importedwallet");
+
+        mockMvc.perform(request.with(token)).andExpect(status().isConflict()); // Cannot create wallet with same address
+    }
+
+    @Test
+    public void testImportWalletWithInvalidPrivateKey() throws Exception {
+        var walletImportDTO = new WalletImportDTO();
+        walletImportDTO.setPrivateKey("invalidprivatekey");
+        walletImportDTO.setName("Invalid Wallet");
+
+        var request = post("/api/wallets/import")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(walletImportDTO))
+                .with(token);
+        mockMvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testImportWalletFails() throws Exception {
+        var walletImportDTO = new WalletImportDTO();
+        walletImportDTO.setPrivateKey(null);
+        walletImportDTO.setName("Invalid Wallet");
+
+        var request = post("/api/wallets/import")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(walletImportDTO))
+                .with(token);
+        mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 }
