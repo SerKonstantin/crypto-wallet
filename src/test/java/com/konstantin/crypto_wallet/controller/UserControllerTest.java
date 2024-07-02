@@ -55,7 +55,9 @@ public class UserControllerTest {
     private TestUtils testUtils;
 
     private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
+    private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor otherToken;
     private User testUser;
+    private User otherUser;
 
     @BeforeEach
     public void setUp() {
@@ -63,11 +65,17 @@ public class UserControllerTest {
         testUser = testUtils.getTestUser();
         userRepository.save(testUser);
         token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
+
+        testUtils.generateData();
+        otherUser = testUtils.getTestUser();
+        userRepository.save(otherUser);
+        otherToken = jwt().jwt(builder -> builder.subject(otherUser.getEmail()));
     }
 
     @AfterEach
     public void clean() {
         userRepository.deleteById(testUser.getId());
+        userRepository.deleteById(otherUser.getId());
     }
 
     @Test
@@ -78,7 +86,7 @@ public class UserControllerTest {
         userRegistrationDTO.setEmail(testUtils.getTestUser().getEmail());
         userRegistrationDTO.setPassword(testUtils.getPasswordInput());
 
-        var request = post("/api/users")
+        var request = post("/api/profile")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(userRegistrationDTO));
         mockMvc.perform(request).andExpect(status().isCreated());
@@ -91,6 +99,8 @@ public class UserControllerTest {
         assertThat(user.getPassword()).isNotEmpty().isNotEqualTo(userRegistrationDTO.getPassword());
         assertThat(user.getCreatedAt()).isEqualTo(user.getUpdatedAt())
                 .isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.MINUTES));
+
+        mockMvc.perform(request).andExpect(status().isConflict()); // Cannot create user with same data
     }
 
     @ParameterizedTest
@@ -101,7 +111,7 @@ public class UserControllerTest {
         userRegistrationDTO.setEmail(email);
         userRegistrationDTO.setPassword(password);
 
-        var request = post("/api/users")
+        var request = post("/api/profile")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(userRegistrationDTO));
         mockMvc.perform(request).andExpect(status().isBadRequest());
@@ -124,61 +134,32 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testRegisterDuplicateEmail() throws Exception {
-        var userRegistrationDTO = new UserRegistrationDTO();
-        userRegistrationDTO.setNickname("new_user");
-        userRegistrationDTO.setEmail(testUser.getEmail().toUpperCase());
-        userRegistrationDTO.setPassword("qwertyuiop");
-
-        var request = post("/api/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(userRegistrationDTO));
-        mockMvc.perform(request).andExpect(status().isConflict());
-    }
-
-    @Test
-    public void testGetUserById() throws Exception {
-        var id = testUser.getId();
-        var request = get("/api/users/" + id).with(token);
-        mockMvc.perform(request).andExpect(status().isOk())
+    public void testShowProfile() throws Exception {
+        var request = get("/api/profile");
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
+        mockMvc.perform(request.with(token)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.nickname").value(testUser.getNickname()))
                 .andExpect(jsonPath("$.email").value(testUser.getEmail()))
                 .andExpect(jsonPath("$.role").value(testUser.getRole().name()))
                 .andExpect(jsonPath("$.password").doesNotExist());
+        mockMvc.perform(request.with(otherToken)).andExpect(jsonPath("$.email").value(otherUser.getEmail()));
     }
 
     @Test
-    public void testGetUserWithoutLogging() throws Exception {
-        var id = testUser.getId();
-        mockMvc.perform(get("/api/users/" + id)).andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    public void testGetByOtherUser() throws Exception {
-        testUtils.generateData();
-        var otherUser = testUtils.getTestUser();
-        userRepository.save(otherUser);
-        var otherToken = jwt().jwt(builder -> builder.subject(otherUser.getEmail()));
-        var request = get("/api/users/" + testUser.getId()).with(otherToken);
-        mockMvc.perform(request).andExpect(status().isForbidden());
-        userRepository.deleteById(otherUser.getId());
-    }
-
-    @Test
-    public void testUpdateUser() throws Exception {
+    public void testUpdateProfile() throws Exception {
         testUtils.generateData();
         var userUpdateDto = new UserUpdateDTO();
         userUpdateDto.setNickname(JsonNullable.of(testUtils.getTestUser().getNickname()));
         userUpdateDto.setEmail(JsonNullable.of(testUtils.getTestUser().getEmail()));
         userUpdateDto.setPassword(JsonNullable.of(testUtils.getPasswordInput()));
 
-        var id = testUser.getId();
-        var request = put("/api/users/" + id).with(token)
+        var request = put("/api/profile")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(userUpdateDto));
-        mockMvc.perform(request).andExpect(status().isOk());
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
+        mockMvc.perform(request.with(token)).andExpect(status().isOk());
 
-        var updatedUser = userRepository.findById(id)
+        var updatedUser = userRepository.findById(testUser.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         assertThat(updatedUser.getNickname()).isEqualTo(userUpdateDto.getNickname().get());
         assertThat(updatedUser.getEmail()).isEqualTo(userUpdateDto.getEmail().get());
@@ -194,15 +175,15 @@ public class UserControllerTest {
         var userUpdateDto = new UserUpdateDTO();
         userUpdateDto.setNickname(JsonNullable.of(testUtils.getTestUser().getNickname()));
 
-        var id = testUser.getId();
-        var request = put("/api/users/" + id).with(token)
+        var request = put("/api/profile")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(userUpdateDto));
-        mockMvc.perform(request).andExpect(status().isOk());
+        mockMvc.perform(request.with(token)).andExpect(status().isOk());
 
-        var updatedUser = userRepository.findById(id)
+        var updatedUser = userRepository.findById(testUser.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         assertThat(updatedUser.getNickname()).isEqualTo(userUpdateDto.getNickname().get());
+        assertThat(updatedUser.getEmail()).isEqualTo(testUser.getEmail());
     }
 
     @ParameterizedTest
@@ -213,51 +194,20 @@ public class UserControllerTest {
         userUpdateDto.setEmail(JsonNullable.of(email));
         userUpdateDto.setPassword(JsonNullable.of(password));
 
-        var request = put("/api/users/" + testUser.getId())
-                .with(token)
+        var request = put("/api/profile")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(userUpdateDto));
-        mockMvc.perform(request).andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void testUpdateByOtherUser() throws Exception {
-        testUtils.generateData();
-        var otherUser = testUtils.getTestUser();
-        userRepository.save(otherUser);
-        var otherToken = jwt().jwt(builder -> builder.subject(otherUser.getEmail()));
-
-        var userUpdateDto = new UserUpdateDTO();
-        userUpdateDto.setNickname(JsonNullable.of(otherUser.getNickname()));
-        var request = put("/api/users/" + testUser.getId())
-                .with(otherToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(userUpdateDto));
-        mockMvc.perform(request).andExpect(status().isForbidden());
-        userRepository.deleteById(otherUser.getId());
+        mockMvc.perform(request.with(token)).andExpect(status().isBadRequest());
     }
 
     @Test
     public void testDeleteUser() throws Exception {
         var id = testUser.getId();
         assertThat(userRepository.findById(id)).isPresent();
-        var request = delete("/api/users/" + id)
-                .with(token)
+        var request = delete("/api/profile")
                 .param("confirmation", "I want to delete my account permanently");
-        mockMvc.perform(request).andExpect(status().isNoContent());
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
+        mockMvc.perform(request.with(token)).andExpect(status().isNoContent());
         assertThat(userRepository.findById(id)).isEmpty();
-    }
-
-    @Test
-    public void testDeleteByOtherUser() throws Exception {
-        testUtils.generateData();
-        var otherUser = testUtils.getTestUser();
-        userRepository.save(otherUser);
-        var otherToken = jwt().jwt(builder -> builder.subject(otherUser.getEmail()));
-        var request = delete("/api/users/" + testUser.getId())
-                .with(otherToken)
-                .param("confirmation", "I want to delete my account permanently");
-        mockMvc.perform(request).andExpect(status().isForbidden());
-        userRepository.deleteById(otherUser.getId());
     }
 }

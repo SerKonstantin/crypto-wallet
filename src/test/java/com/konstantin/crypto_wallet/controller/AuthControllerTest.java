@@ -77,7 +77,7 @@ public class AuthControllerTest {
     @Test
     public void testLogout() throws Exception {
         var token = jwtUtils.generateToken(testUser.getEmail());
-        var getRequest = get("/api/users/" + testUser.getId())
+        var getRequest = get("/api/profile")
                 .header("Authorization", "Bearer " + token);
         mockMvc.perform(getRequest).andExpect(status().isOk());
 
