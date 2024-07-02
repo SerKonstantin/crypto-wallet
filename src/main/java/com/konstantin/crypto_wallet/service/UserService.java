@@ -3,7 +3,6 @@ package com.konstantin.crypto_wallet.service;
 import com.konstantin.crypto_wallet.dto.user.UserDTO;
 import com.konstantin.crypto_wallet.dto.user.UserRegistrationDTO;
 import com.konstantin.crypto_wallet.dto.user.UserUpdateDTO;
-import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
 import com.konstantin.crypto_wallet.exception.ResourceAlreadyExistsException;
 import com.konstantin.crypto_wallet.mapper.UserMapper;
 import com.konstantin.crypto_wallet.repository.UserRepository;
@@ -25,10 +24,13 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private UserUtils userUtils;
+
     @Transactional
     public UserDTO register(UserRegistrationDTO data) {
         var user = userMapper.map(data);
-        UserUtils.normalize(user);
+        userUtils.normalize(user);
         if (userRepository.findByNicknameIgnoreCase(user.getNickname()).isPresent()) {
             throw new ResourceAlreadyExistsException("User with nickname " + user.getNickname() + " already exists");
         }
@@ -41,18 +43,16 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserDTO getById(Long id) {
-        var user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public UserDTO getProfile() {
+        var user = userUtils.getCurrentUser();
         return userMapper.map(user);
     }
 
     @Transactional
-    public UserDTO update(UserUpdateDTO data, Long id) {
-        var user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public UserDTO updateProfile(UserUpdateDTO data) {
+        var user = userUtils.getCurrentUser();
         userMapper.update(data, user);
-        UserUtils.normalize(user);
+        userUtils.normalize(user);
         if (data.getPassword() != null) {
             user.setPassword(passwordEncoder.encode(data.getPassword().get()));
         }
@@ -62,7 +62,8 @@ public class UserService {
     }
 
     @Transactional
-    public void delete(Long id) {
-        userRepository.deleteById(id);
+    public void deleteProfile() {
+        var user = userUtils.getCurrentUser();
+        userRepository.delete(user);
     }
 }
