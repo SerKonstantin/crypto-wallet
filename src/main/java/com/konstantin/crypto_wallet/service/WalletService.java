@@ -6,6 +6,7 @@ import com.konstantin.crypto_wallet.dto.wallet.WalletUpdateDTO;
 import com.konstantin.crypto_wallet.exception.ResourceAlreadyExistsException;
 import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
 import com.konstantin.crypto_wallet.mapper.WalletMapper;
+import com.konstantin.crypto_wallet.model.User;
 import com.konstantin.crypto_wallet.model.Wallet;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import com.konstantin.crypto_wallet.repository.WalletRepository;
@@ -32,11 +33,7 @@ public class WalletService {
     private UserUtils userUtils;
 
     public WalletDTO createWallet(WalletCreateDTO walletCreateDTO) {
-        // We use userId to be sure that user from security context exists in database
-        var userId = userUtils.getCurrentUser().getId();
-        var currentUser = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
+        var currentUser = userUtils.getCurrentUser();
         var wallet = walletMapper.map(walletCreateDTO);
         if (currentUser.getWallets().stream().anyMatch(w -> w.getName().equals(wallet.getName()))) {
             throw new ResourceAlreadyExistsException("A wallet with this name already exists");
@@ -54,48 +51,45 @@ public class WalletService {
     }
 
     public List<WalletDTO> getWallets() {
-        var userId = userUtils.getCurrentUser().getId();
-        var wallets = walletRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Wallets not found"));
-
-        return wallets.stream()
+        var currentUser = userUtils.getCurrentUser();
+        return currentUser.getWallets()
+                .stream()
                 .map(walletMapper::map)
                 .toList();
     }
 
     public WalletDTO getWalletBySlug(String slug) {
-        var userId = userUtils.getCurrentUser().getId();
-        var wallet = getWalletByUserIdAndSlug(userId, slug);
+        var currentUser = userUtils.getCurrentUser();
+        var wallet = getWalletByUserAndSlug(currentUser, slug);
         return walletMapper.map(wallet);
     }
 
     public WalletDTO updateWalletBySlug(String slug, WalletUpdateDTO walletUpdateDTO) {
-        var userId = userUtils.getCurrentUser().getId();
-        var wallet = getWalletByUserIdAndSlug(userId, slug);
-        var wallets = wallet.getUser().getWallets();
+        var currentUser = userUtils.getCurrentUser();
+        var wallet = getWalletByUserAndSlug(currentUser, slug);
 
-        if (wallets.stream().anyMatch(w -> w.getName().equals(walletUpdateDTO.getName()))) {
+        if (currentUser.getWallets().stream().anyMatch(w -> w.getName().equals(walletUpdateDTO.getName()))) {
             throw new ResourceAlreadyExistsException("A wallet with this name already exists");
         }
 
         walletMapper.update(walletUpdateDTO, wallet);
-        var updatedSlug = SlugUtilsForWallet.toUniqueSlug(wallet.getName(), wallets);
+        var updatedSlug = SlugUtilsForWallet.toUniqueSlug(wallet.getName(), currentUser.getWallets());
         wallet.setSlug(updatedSlug);
         walletRepository.save(wallet);
         return walletMapper.map(wallet);
     }
 
     public void deleteWallet(String slug) {
-        var userId = userUtils.getCurrentUser().getId();
-        var wallet = getWalletByUserIdAndSlug(userId, slug);
-        wallet.getUser().getWallets().remove(wallet);
+        var currentUser = userUtils.getCurrentUser();
+        var wallet = getWalletByUserAndSlug(currentUser, slug);
+        currentUser.getWallets().remove(wallet);
         walletRepository.delete(wallet);
+        userRepository.save(currentUser);
     }
 
-    private Wallet getWalletByUserIdAndSlug(Long userId, String slug) {
-        var wallets = walletRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Wallets not found"));
-        return wallets.stream()
+    private Wallet getWalletByUserAndSlug(User user, String slug) {
+        return user.getWallets()
+                .stream()
                 .filter(w -> w.getSlug().equals(slug))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
