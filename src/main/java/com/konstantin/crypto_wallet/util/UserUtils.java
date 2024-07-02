@@ -1,6 +1,6 @@
 package com.konstantin.crypto_wallet.util;
 
-import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
+import com.konstantin.crypto_wallet.exception.NotAuthorizedException;
 import com.konstantin.crypto_wallet.model.User;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +16,14 @@ public class UserUtils {
     public User getCurrentUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            return null;
+            throw new NotAuthorizedException("Not authorized");
         }
         var email = authentication.getName();
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new NotAuthorizedException("Not authorized"));
     }
 
-    public static void normalize(User user) {
+    public void normalize(User user) {
         user.setNickname(user.getNickname().trim());
         user.setEmail(user.getEmail().toLowerCase().trim());
     }

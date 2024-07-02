@@ -1,5 +1,6 @@
 package com.konstantin.crypto_wallet.handler;
 
+import com.konstantin.crypto_wallet.exception.NotAuthorizedException;
 import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
 import com.konstantin.crypto_wallet.exception.ResourceAlreadyExistsException;
 import org.springframework.http.HttpStatus;
@@ -19,5 +20,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<String> handleUserAlreadyExistsException(ResourceAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleNotAuthorizedException(NotAuthorizedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 }
