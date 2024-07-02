@@ -2,6 +2,7 @@ package com.konstantin.crypto_wallet.controller;
 
 import com.konstantin.crypto_wallet.dto.wallet.WalletCreateDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletDTO;
+import com.konstantin.crypto_wallet.dto.wallet.WalletImportDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletUpdateDTO;
 import com.konstantin.crypto_wallet.service.WalletService;
 import jakarta.validation.Valid;
@@ -58,5 +59,11 @@ public class WalletController {
         }
         walletService.deleteWallet(slug);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<WalletDTO> importWallet(@Valid @RequestBody WalletImportDTO data) {
+        var walletDTO = walletService.importWallet(data);
+        return new ResponseEntity<>(walletDTO, HttpStatus.CREATED);
     }
 }

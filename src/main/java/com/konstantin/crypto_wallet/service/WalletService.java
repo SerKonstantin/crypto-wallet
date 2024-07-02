@@ -2,6 +2,7 @@ package com.konstantin.crypto_wallet.service;
 
 import com.konstantin.crypto_wallet.dto.wallet.WalletCreateDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletDTO;
+import com.konstantin.crypto_wallet.dto.wallet.WalletImportDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletUpdateDTO;
 import com.konstantin.crypto_wallet.exception.ResourceAlreadyExistsException;
 import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
@@ -14,6 +15,7 @@ import com.konstantin.crypto_wallet.util.SlugUtilsForWallet;
 import com.konstantin.crypto_wallet.util.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.web3j.crypto.Credentials;
 
 import java.util.List;
 
@@ -85,6 +87,38 @@ public class WalletService {
         currentUser.getWallets().remove(wallet);
         walletRepository.delete(wallet);
         userRepository.save(currentUser);
+    }
+
+    public WalletDTO importWallet(WalletImportDTO walletImportDTO) {
+        var currentUser = userUtils.getCurrentUser();
+        var wallet = walletMapper.map(walletImportDTO);
+        if (currentUser.getWallets().stream().anyMatch(w -> w.getName().equals(wallet.getName()))) {
+            throw new ResourceAlreadyExistsException("A wallet with this name already exists");
+        }
+
+        Credentials credentials;
+        try {
+            credentials = Credentials.create(walletImportDTO.getPrivateKey());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid private key");
+        }
+
+        String address = credentials.getAddress();
+        if (walletRepository.findByAddress(address).isPresent()) {
+            throw new ResourceAlreadyExistsException("A wallet with this address already exists");
+        }
+
+        wallet.setAddress(address);
+        String slug = SlugUtilsForWallet.toUniqueSlug(wallet.getName(), currentUser.getWallets());
+        wallet.setSlug(slug);
+        wallet.setUser(currentUser);
+
+        currentUser.getWallets().add(wallet);
+
+        walletRepository.save(wallet);
+        userRepository.save(currentUser);
+
+        return walletMapper.map(wallet);
     }
 
     private Wallet getWalletByUserAndSlug(User user, String slug) {

@@ -2,6 +2,7 @@ package com.konstantin.crypto_wallet.mapper;
 
 import com.konstantin.crypto_wallet.dto.wallet.WalletCreateDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletDTO;
+import com.konstantin.crypto_wallet.dto.wallet.WalletImportDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletUpdateDTO;
 import com.konstantin.crypto_wallet.model.Wallet;
 import org.mapstruct.Mapper;
@@ -21,4 +22,6 @@ public abstract class WalletMapper {
     public abstract WalletDTO map(Wallet model);
 
     public abstract void update(WalletUpdateDTO dto, @MappingTarget Wallet model);
+
+    public abstract Wallet map(WalletImportDTO dto);
 }
