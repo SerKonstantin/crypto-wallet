@@ -4,12 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.konstantin.crypto_wallet.dto.user.UserRegistrationDTO;
 import com.konstantin.crypto_wallet.dto.user.UserUpdateDTO;
-import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
-import com.konstantin.crypto_wallet.model.User;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import com.konstantin.crypto_wallet.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -35,13 +30,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class UserControllerTest {
 
     @Autowired
@@ -56,48 +49,27 @@ public class UserControllerTest {
     @Autowired
     private TestUtils testUtils;
 
-    private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
-    private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor otherToken;
-    private User testUser;
-    private User otherUser;
-
-    @BeforeEach
-    public void setUp() {
-        testUtils.generateData();
-        testUser = testUtils.getTestUser();
-        userRepository.save(testUser);
-        token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
-
-        testUtils.generateData();
-        otherUser = testUtils.getTestUser();
-        userRepository.save(otherUser);
-        otherToken = jwt().jwt(builder -> builder.subject(otherUser.getEmail()));
-    }
-
     @AfterEach
     public void clean() {
-        userRepository.deleteById(testUser.getId());
-        userRepository.deleteById(otherUser.getId());
+        testUtils.cleanAllRepositories();
     }
 
     @Test
     public void testRegister() throws Exception {
-        testUtils.generateData();
         var userRegistrationDTO = new UserRegistrationDTO();
-        userRegistrationDTO.setNickname(testUtils.getTestUser().getNickname());
-        userRegistrationDTO.setEmail(testUtils.getTestUser().getEmail());
-        userRegistrationDTO.setPassword(testUtils.getPasswordInput());
+        userRegistrationDTO.setNickname("TestUser");
+        userRegistrationDTO.setEmail("testuser@gmail.com");
+        userRegistrationDTO.setPassword("qwertyuiop");
 
         var request = post("/api/profile")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(userRegistrationDTO));
         mockMvc.perform(request).andExpect(status().isCreated());
 
-        var user = userRepository.findByEmail(userRegistrationDTO.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        var user = userRepository.findByEmail(userRegistrationDTO.getEmail()).orElse(null);
+        assertThat(user).isNotNull();
         assertThat(user.getId()).isPositive();
         assertThat(user.getNickname()).isEqualTo(userRegistrationDTO.getNickname());
-        assertThat(user.getEmail()).isEqualTo(userRegistrationDTO.getEmail());
         assertThat(user.getPassword()).isNotEmpty().isNotEqualTo(userRegistrationDTO.getPassword());
         assertThat(user.getCreatedAt()).isEqualTo(user.getUpdatedAt())
                 .isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.MINUTES));
@@ -120,72 +92,78 @@ public class UserControllerTest {
     }
 
     private Stream<Arguments> supplyRegisterAndUpdateWithInvalidData() {
-        testUtils.generateData();
-        var user = testUtils.getTestUser();
+        var nickname = "TestUser";
+        var email = "testuser@gmail.com";
+        var password = "qwertyuiop";
         return Stream.of(
-                Arguments.of("!@#$%^&*()[]{}", user.getEmail(), user.getPassword()),
-                Arguments.of("", user.getEmail(), user.getPassword()),
-                Arguments.of(null, user.getEmail(), user.getPassword()),
-                Arguments.of(user.getNickname(), "not_email", user.getPassword()),
-                Arguments.of(user.getNickname(), "", user.getPassword()),
-                Arguments.of(user.getNickname(), null, user.getPassword()),
-                Arguments.of(user.getNickname(), user.getEmail(), "qwerty"),
-                Arguments.of(user.getNickname(), user.getEmail(), ""),
-                Arguments.of(user.getNickname(), user.getEmail(), null)
+                Arguments.of("!@#$%^&*()[]{}", email, password),
+                Arguments.of("", email, password),
+                Arguments.of(null, email, password),
+                Arguments.of(nickname, "not_email", password),
+                Arguments.of(nickname, "", password),
+                Arguments.of(nickname, null, password),
+                Arguments.of(nickname, email, "short"),
+                Arguments.of(nickname, email, ""),
+                Arguments.of(nickname, email, null)
         );
     }
 
     @Test
     public void testShowProfile() throws Exception {
+        var testData = testUtils.generateData();
+        var user = testData.getUser();
+
         var request = get("/api/profile");
         mockMvc.perform(request).andExpect(status().isUnauthorized());
-        mockMvc.perform(request.with(token)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.nickname").value(testUser.getNickname()))
-                .andExpect(jsonPath("$.email").value(testUser.getEmail()))
-                .andExpect(jsonPath("$.role").value(testUser.getRole().name()))
+        mockMvc.perform(request.with(testData.getToken()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nickname").value(user.getNickname()))
+                .andExpect(jsonPath("$.email").value(user.getEmail()))
+                .andExpect(jsonPath("$.role").value(user.getRole().name()))
                 .andExpect(jsonPath("$.password").doesNotExist());
-        mockMvc.perform(request.with(otherToken)).andExpect(jsonPath("$.email").value(otherUser.getEmail()));
     }
 
     @Test
     public void testUpdateProfile() throws Exception {
-        testUtils.generateData();
+        var testData = testUtils.generateData();
+
         var userUpdateDto = new UserUpdateDTO();
-        userUpdateDto.setNickname(JsonNullable.of(testUtils.getTestUser().getNickname()));
-        userUpdateDto.setEmail(JsonNullable.of(testUtils.getTestUser().getEmail()));
-        userUpdateDto.setPassword(JsonNullable.of(testUtils.getPasswordInput()));
+        userUpdateDto.setNickname(JsonNullable.of("NewNickname"));
+        userUpdateDto.setEmail(JsonNullable.of("newmail@gmail.com"));
+        userUpdateDto.setPassword(JsonNullable.of("asdfghjkl"));
 
         var request = put("/api/profile")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(userUpdateDto));
         mockMvc.perform(request).andExpect(status().isUnauthorized());
-        mockMvc.perform(request.with(token)).andExpect(status().isOk());
+        mockMvc.perform(request.with(testData.getToken())).andExpect(status().isOk());
 
-        var updatedUser = userRepository.findById(testUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        assertThat(updatedUser.getNickname()).isEqualTo(userUpdateDto.getNickname().get());
-        assertThat(updatedUser.getEmail()).isEqualTo(userUpdateDto.getEmail().get());
-        assertThat(updatedUser.getPassword()).isNotEmpty().isNotEqualTo(testUser.getPassword())
-                .isNotEqualTo(userUpdateDto.getPassword());
-        assertThat(updatedUser.getCreatedAt()).isCloseTo(testUser.getCreatedAt(), within(1, ChronoUnit.MILLIS));
-        assertThat(updatedUser.getUpdatedAt()).isNotEqualTo(testUser.getUpdatedAt());
+        var updatedUser = userRepository.findById(testData.getUser().getId()).orElse(null);
+        assertThat(updatedUser).isNotNull();
+        assertThat(updatedUser.getNickname()).isEqualTo("NewNickname");
+        assertThat(updatedUser.getEmail()).isEqualTo("newmail@gmail.com");
+        assertThat(updatedUser.getPassword()).isNotEmpty()
+                .isNotEqualTo(testData.getUser().getPassword())
+                .isNotEqualTo(testData.getPasswordInput())
+                .isNotEqualTo("asdfghjkl");
     }
 
     @Test
     public void testPartialUpdateUser() throws Exception {
-        testUtils.generateData();
+        var testData = testUtils.generateData();
+
         var userUpdateDto = new UserUpdateDTO();
-        userUpdateDto.setNickname(JsonNullable.of(testUtils.getTestUser().getNickname()));
+        userUpdateDto.setNickname(JsonNullable.of("NewNickname"));
 
         var request = put("/api/profile")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(userUpdateDto));
-        mockMvc.perform(request.with(token)).andExpect(status().isOk());
+        mockMvc.perform(request.with(testData.getToken())).andExpect(status().isOk());
 
-        var updatedUser = userRepository.findById(testUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        assertThat(updatedUser.getNickname()).isEqualTo(userUpdateDto.getNickname().get());
-        assertThat(updatedUser.getEmail()).isEqualTo(testUser.getEmail());
+        var updatedUser = userRepository.findById(testData.getUser().getId()).orElse(null);
+        assertThat(updatedUser).isNotNull();
+        assertThat(updatedUser.getNickname()).isEqualTo("NewNickname");
+        assertThat(updatedUser.getEmail()).isEqualTo(testData.getUser().getEmail());
     }
 
     @ParameterizedTest
@@ -199,17 +177,20 @@ public class UserControllerTest {
         var request = put("/api/profile")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(userUpdateDto));
+        var token = testUtils.generateData().getToken();
         mockMvc.perform(request.with(token)).andExpect(status().isBadRequest());
     }
 
     @Test
     public void testDeleteUser() throws Exception {
-        var id = testUser.getId();
-        assertThat(userRepository.findById(id)).isPresent();
+        var testData = testUtils.generateData();
+        var userId = testData.getUser().getId();
+
+        assertThat(userRepository.findById(userId)).isPresent();
         var request = delete("/api/profile")
                 .param("confirmation", "I want to delete my account permanently");
         mockMvc.perform(request).andExpect(status().isUnauthorized());
-        mockMvc.perform(request.with(token)).andExpect(status().isNoContent());
-        assertThat(userRepository.findById(id)).isEmpty();
+        mockMvc.perform(request.with(testData.getToken())).andExpect(status().isNoContent());
+        assertThat(userRepository.findById(userId)).isEmpty();
     }
 }

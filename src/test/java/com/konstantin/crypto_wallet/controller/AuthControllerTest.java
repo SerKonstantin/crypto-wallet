@@ -2,18 +2,15 @@ package com.konstantin.crypto_wallet.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.konstantin.crypto_wallet.dto.auth.AuthRequest;
-import com.konstantin.crypto_wallet.model.User;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import com.konstantin.crypto_wallet.util.JWTUtils;
 import com.konstantin.crypto_wallet.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +20,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class AuthControllerTest {
 
     @Autowired
@@ -41,25 +37,16 @@ public class AuthControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private User testUser;
-    private String passwordInput;
-
-    @BeforeEach
-    public void setUp() {
-        testUtils.generateData();
-        passwordInput = testUtils.getPasswordInput();
-        testUser = testUtils.getTestUser();
-        userRepository.save(testUser);
-    }
-
     @AfterEach
     public void clean() {
-        userRepository.deleteById(testUser.getId());
+        testUtils.cleanAllRepositories();
     }
 
     @Test
     public void testLogin() throws Exception {
-        var authRequest = new AuthRequest(testUser.getUsername(), passwordInput);
+        var testData = testUtils.generateData();
+
+        var authRequest = new AuthRequest(testData.getUser().getUsername(), testData.getPasswordInput());
         var request = post("/api/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(authRequest));
@@ -69,7 +56,9 @@ public class AuthControllerTest {
 
     @Test
     public void testLoginFail() throws Exception {
-        var authRequest = new AuthRequest(testUser.getUsername(), "incorrect_password");
+        var username = testUtils.generateData().getUser().getUsername();
+
+        var authRequest = new AuthRequest(username, "incorrect_password");
         var request = post("/api/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(authRequest));
@@ -78,7 +67,8 @@ public class AuthControllerTest {
 
     @Test
     public void testLogout() throws Exception {
-        var token = jwtUtils.generateToken(testUser.getEmail());
+        var email = testUtils.generateData().getUser().getEmail();
+        var token = jwtUtils.generateToken(email);
         var getRequest = get("/api/profile")
                 .header("Authorization", "Bearer " + token);
         mockMvc.perform(getRequest).andExpect(status().isOk());

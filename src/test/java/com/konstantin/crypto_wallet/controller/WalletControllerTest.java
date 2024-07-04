@@ -5,14 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.konstantin.crypto_wallet.dto.wallet.WalletCreateDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletImportDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletUpdateDTO;
-import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
-import com.konstantin.crypto_wallet.model.User;
-import com.konstantin.crypto_wallet.model.Wallet;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import com.konstantin.crypto_wallet.repository.WalletRepository;
 import com.konstantin.crypto_wallet.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Stream;
@@ -34,12 +28,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class WalletControllerTest {
 
     @Autowired
@@ -57,51 +49,29 @@ public class WalletControllerTest {
     @Autowired
     private TestUtils testUtils;
 
-    private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
-    private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor otherUserToken;
-    private User testUser;
-    private User otherUser;
-    private Wallet testWallet;
-
-    @BeforeEach
-    public void setUp() {
-        testUtils.generateData();
-        testUser = testUtils.getTestUser();
-        testWallet = testUtils.getTestWallet();
-        userRepository.save(testUser);
-        walletRepository.save(testWallet);
-        token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
-
-        testUtils.generateData();
-        otherUser = testUtils.getTestUser();
-        userRepository.save(otherUser);
-        otherUserToken = jwt().jwt(builder -> builder.subject(otherUser.getEmail()));
-    }
-
     @AfterEach
     public void clean() {
-        walletRepository.deleteById(testWallet.getId());
-        userRepository.deleteById(testUser.getId());
-        userRepository.deleteById(otherUser.getId());
+        testUtils.cleanAllRepositories();
     }
 
     @Test
     public void testCreateWallet() throws Exception {
+        var testData = testUtils.generateData();
+
         var walletCreateDTO = new WalletCreateDTO();
-        walletCreateDTO.setAddress("0xb794f5ea0ba39494ce839613fffba74279579268");
+        walletCreateDTO.setAddress("0x1234");
         walletCreateDTO.setName("Henkilökohtainen");
 
         var request = post("/api/wallets")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(walletCreateDTO))
-                .with(token);
+                .with(testData.getToken());
         mockMvc.perform(request).andExpect(status().isCreated());
 
-        var wallets = walletRepository.findByUserId(testUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Wallets not found"));
+        var wallets = walletRepository.findByUserId(testData.getUser().getId()).orElse(null);
         assertThat(wallets).hasSize(2);
         var wallet = wallets.get(1);
-        assertThat(wallet.getAddress()).isEqualTo(walletCreateDTO.getAddress());
+        assertThat(wallet.getAddress()).isEqualTo("0x1234");
         assertThat(wallet.getName()).isEqualTo("Henkilökohtainen");
         assertThat(wallet.getSlug()).isEqualTo("henkilokohtainen");
 
@@ -118,11 +88,11 @@ public class WalletControllerTest {
         var request = post("/api/wallets")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(walletCreateDTO))
-                .with(token);
+                .with(testUtils.generateData().getToken());
         mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 
-    private Stream<Arguments> supplyInvalidWalletData() {
+    private static Stream<Arguments> supplyInvalidWalletData() {
         return Stream.of(
                 Arguments.of("", "address"),
                 Arguments.of(null, "address"),
@@ -133,67 +103,82 @@ public class WalletControllerTest {
 
     @Test
     public void testShowWallets() throws Exception {
+        var testData = testUtils.generateData();
+
         var request = get("/api/wallets");
         mockMvc.perform(request).andExpect(status().isUnauthorized());
-        mockMvc.perform(request.with(token)).andExpect(status().isOk())
+        mockMvc.perform(request.with(testData.getToken())).andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].name").value(testWallet.getName()))
-                .andExpect(jsonPath("$[0].address").value(testWallet.getAddress()));
+                .andExpect(jsonPath("$[0].name").value(testData.getWallet().getName()))
+                .andExpect(jsonPath("$[0].address").value(testData.getWallet().getAddress()));
     }
 
     @Test
     public void testShowWallet() throws Exception {
-        var request = get("/api/wallets/" + testWallet.getSlug());
+        var testData = testUtils.generateData();
+        var otherUserData = testUtils.generateData();
+
+        var request = get("/api/wallets/" + testData.getWallet().getSlug());
         mockMvc.perform(request).andExpect(status().isUnauthorized());
-        mockMvc.perform(request.with(otherUserToken)).andExpect(status().isNotFound());
-        mockMvc.perform(request.with(token)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(testWallet.getName()))
-                .andExpect(jsonPath("$.address").value(testWallet.getAddress()));
+        mockMvc.perform(request.with(otherUserData.getToken())).andExpect(status().isNotFound());
+        mockMvc.perform(request.with(testData.getToken())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(testData.getWallet().getName()))
+                .andExpect(jsonPath("$.address").value(testData.getWallet().getAddress()));
     }
 
     @Test
     public void testUpdateWallet() throws Exception {
+        var testData = testUtils.generateData();
+        var otherUserData = testUtils.generateData();
+
         var walletUpdateDTO = new WalletUpdateDTO();
         walletUpdateDTO.setName("New Name");
 
-        var request = put("/api/wallets/" + testWallet.getSlug())
+        var request = put("/api/wallets/" + testData.getWallet().getSlug())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(walletUpdateDTO));
         mockMvc.perform(request).andExpect(status().isUnauthorized());
-        mockMvc.perform(request.with(otherUserToken)).andExpect(status().isNotFound());
-        mockMvc.perform(request.with(token)).andExpect(status().isOk());
+        mockMvc.perform(request.with(otherUserData.getToken())).andExpect(status().isNotFound());
+        mockMvc.perform(request.with(testData.getToken())).andExpect(status().isOk());
 
-        var updatedWallet = walletRepository.findById(testWallet.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
+        var updatedWallet = walletRepository.findById(testData.getWallet().getId()).orElse(null);
+        assertThat(updatedWallet).isNotNull();
         assertThat(updatedWallet.getName()).isEqualTo("New Name");
         assertThat(updatedWallet.getSlug()).isEqualTo("newname");
     }
 
     @Test
     public void testUpdateWalletFails() throws Exception {
+        var testData = testUtils.generateData();
+
         var walletUpdateDTO = new WalletUpdateDTO();
         walletUpdateDTO.setName("");
 
-        var request = put("/api/wallets/" + testWallet.getSlug())
+        var request = put("/api/wallets/" + testData.getWallet().getSlug())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(walletUpdateDTO))
-                .with(token);
+                .with(testData.getToken());
         mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 
     @Test
     public void testDeleteWallet() throws Exception {
-        assertThat(walletRepository.findById(testWallet.getId())).isPresent();
-        var request = delete("/api/wallets/" + testWallet.getSlug())
+        var testData = testUtils.generateData();
+        var otherUserData = testUtils.generateData();
+
+        assertThat(walletRepository.findById(testData.getWallet().getId())).isPresent();
+        var request = delete("/api/wallets/" + testData.getWallet().getSlug())
                 .param("confirmation", "I want to delete this wallet permanently");
         mockMvc.perform(request).andExpect(status().isUnauthorized());
-        mockMvc.perform(request.with(otherUserToken)).andExpect(status().isNotFound());
-        mockMvc.perform(request.with(token)).andExpect(status().isNoContent());
-        assertThat(walletRepository.findById(testWallet.getId())).isEmpty();
+        mockMvc.perform(request.with(otherUserData.getToken())).andExpect(status().isNotFound());
+        mockMvc.perform(request.with(testData.getToken())).andExpect(status().isNoContent());
+        assertThat(walletRepository.findById(testData.getWallet().getId())).isEmpty();
     }
 
     @Test
     public void testImportWallet() throws Exception {
+        var testData = testUtils.generateData();
+
         var walletImportDTO = new WalletImportDTO();
         walletImportDTO.setPrivateKey("1383ad52dca31407f1955d25c79785ff75249cf975d481c7d3a1c96ea9e638a5");
         walletImportDTO.setName("Imported Wallet");
@@ -202,17 +187,17 @@ public class WalletControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(walletImportDTO));
         mockMvc.perform(request).andExpect(status().isUnauthorized());
-        mockMvc.perform(request.with(token)).andExpect(status().isCreated());
+        mockMvc.perform(request.with(testData.getToken())).andExpect(status().isCreated());
 
-        var wallets = walletRepository.findByUserId(testUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Wallets not found"));
+        var wallets = walletRepository.findByUserId(testData.getUser().getId()).orElse(null);
         assertThat(wallets).hasSize(2);
         var wallet = wallets.get(1);
         assertThat(wallet.getAddress()).isEqualTo("0xab14868d1abd7de5810e70ed3029239a09625d08");
         assertThat(wallet.getName()).isEqualTo("Imported Wallet");
         assertThat(wallet.getSlug()).isEqualTo("importedwallet");
 
-        mockMvc.perform(request.with(token)).andExpect(status().isConflict()); // Cannot create wallet with same address
+        // Cannot create wallet with same address
+        mockMvc.perform(request.with(testData.getToken())).andExpect(status().isConflict());
     }
 
     @Test
@@ -224,7 +209,7 @@ public class WalletControllerTest {
         var request = post("/api/wallets/import")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(walletImportDTO))
-                .with(token);
+                .with(testUtils.generateData().getToken());
         mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 
@@ -237,7 +222,7 @@ public class WalletControllerTest {
         var request = post("/api/wallets/import")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(walletImportDTO))
-                .with(token);
+                .with(testUtils.generateData().getToken());
         mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 }
