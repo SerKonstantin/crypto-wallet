@@ -15,6 +15,7 @@ import com.konstantin.crypto_wallet.util.SlugUtilsForWallet;
 import com.konstantin.crypto_wallet.util.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.Credentials;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public class WalletService {
     @Autowired
     private UserUtils userUtils;
 
+    @Transactional
     public WalletDTO createWallet(WalletCreateDTO walletCreateDTO) {
         var currentUser = userUtils.getCurrentUser();
         var wallet = walletMapper.map(walletCreateDTO);
@@ -52,6 +54,7 @@ public class WalletService {
         return walletMapper.map(wallet);
     }
 
+    @Transactional(readOnly = true)
     public List<WalletDTO> getWallets() {
         var currentUser = userUtils.getCurrentUser();
         return currentUser.getWallets()
@@ -60,12 +63,14 @@ public class WalletService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public WalletDTO getWalletBySlug(String slug) {
         var currentUser = userUtils.getCurrentUser();
         var wallet = getWalletByUserAndSlug(currentUser, slug);
         return walletMapper.map(wallet);
     }
 
+    @Transactional
     public WalletDTO updateWalletBySlug(String slug, WalletUpdateDTO walletUpdateDTO) {
         var currentUser = userUtils.getCurrentUser();
         var wallet = getWalletByUserAndSlug(currentUser, slug);
@@ -81,6 +86,7 @@ public class WalletService {
         return walletMapper.map(wallet);
     }
 
+    @Transactional
     public void deleteWallet(String slug) {
         var currentUser = userUtils.getCurrentUser();
         var wallet = getWalletByUserAndSlug(currentUser, slug);
@@ -89,6 +95,7 @@ public class WalletService {
         userRepository.save(currentUser);
     }
 
+    @Transactional
     public WalletDTO importWallet(WalletImportDTO walletImportDTO) {
         var currentUser = userUtils.getCurrentUser();
         var wallet = walletMapper.map(walletImportDTO);
