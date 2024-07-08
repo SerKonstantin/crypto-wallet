@@ -5,10 +5,7 @@ import com.konstantin.crypto_wallet.dto.wallet.WalletDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletImportDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletUpdateDTO;
 import com.konstantin.crypto_wallet.exception.ResourceAlreadyExistsException;
-import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
 import com.konstantin.crypto_wallet.mapper.WalletMapper;
-import com.konstantin.crypto_wallet.model.User;
-import com.konstantin.crypto_wallet.model.Wallet;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import com.konstantin.crypto_wallet.repository.WalletRepository;
 import com.konstantin.crypto_wallet.util.SlugUtilsForWallet;
@@ -35,6 +32,9 @@ public class WalletService {
     @Autowired
     private UserUtils userUtils;
 
+    @Autowired
+    private SlugUtilsForWallet slugUtils;
+
     @Transactional
     public WalletDTO createWallet(WalletCreateDTO walletCreateDTO) {
         var currentUser = userUtils.getCurrentUser();
@@ -43,7 +43,7 @@ public class WalletService {
             throw new ResourceAlreadyExistsException("A wallet with this name already exists");
         }
 
-        var slug = SlugUtilsForWallet.toUniqueSlug(wallet.getName(), currentUser.getWallets());
+        var slug = slugUtils.toUniqueSlug(wallet.getName(), currentUser.getWallets());
         wallet.setSlug(slug);
         wallet.setUser(currentUser);
         currentUser.getWallets().add(wallet);
@@ -66,21 +66,21 @@ public class WalletService {
     @Transactional(readOnly = true)
     public WalletDTO getWalletBySlug(String slug) {
         var currentUser = userUtils.getCurrentUser();
-        var wallet = getWalletByUserAndSlug(currentUser, slug);
+        var wallet = slugUtils.getWalletByUserAndSlug(currentUser, slug);
         return walletMapper.map(wallet);
     }
 
     @Transactional
     public WalletDTO updateWalletBySlug(String slug, WalletUpdateDTO walletUpdateDTO) {
         var currentUser = userUtils.getCurrentUser();
-        var wallet = getWalletByUserAndSlug(currentUser, slug);
+        var wallet = slugUtils.getWalletByUserAndSlug(currentUser, slug);
 
         if (currentUser.getWallets().stream().anyMatch(w -> w.getName().equals(walletUpdateDTO.getName()))) {
             throw new ResourceAlreadyExistsException("A wallet with this name already exists");
         }
 
         walletMapper.update(walletUpdateDTO, wallet);
-        var updatedSlug = SlugUtilsForWallet.toUniqueSlug(wallet.getName(), currentUser.getWallets());
+        var updatedSlug = slugUtils.toUniqueSlug(wallet.getName(), currentUser.getWallets());
         wallet.setSlug(updatedSlug);
         walletRepository.save(wallet);
         return walletMapper.map(wallet);
@@ -89,7 +89,7 @@ public class WalletService {
     @Transactional
     public void deleteWallet(String slug) {
         var currentUser = userUtils.getCurrentUser();
-        var wallet = getWalletByUserAndSlug(currentUser, slug);
+        var wallet = slugUtils.getWalletByUserAndSlug(currentUser, slug);
         currentUser.getWallets().remove(wallet);
         walletRepository.delete(wallet);
         userRepository.save(currentUser);
@@ -116,7 +116,7 @@ public class WalletService {
         }
 
         wallet.setAddress(address);
-        String slug = SlugUtilsForWallet.toUniqueSlug(wallet.getName(), currentUser.getWallets());
+        String slug = slugUtils.toUniqueSlug(wallet.getName(), currentUser.getWallets());
         wallet.setSlug(slug);
         wallet.setUser(currentUser);
 
@@ -126,13 +126,5 @@ public class WalletService {
         userRepository.save(currentUser);
 
         return walletMapper.map(wallet);
-    }
-
-    private Wallet getWalletByUserAndSlug(User user, String slug) {
-        return user.getWallets()
-                .stream()
-                .filter(w -> w.getSlug().equals(slug))
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
     }
 }
