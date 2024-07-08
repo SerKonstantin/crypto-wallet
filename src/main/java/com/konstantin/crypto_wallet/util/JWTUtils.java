@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 @Component
 public class JWTUtils {
@@ -16,12 +17,12 @@ public class JWTUtils {
     @Autowired
     private JwtEncoder jwtEncoder;
 
-    public String generateToken(String username) {
+    public String generateAuthToken(String username) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
-                .expiresAt(now.plus(Constants.TOKEN_EXPIRATION_TIME, ChronoUnit.MILLIS))
+                .expiresAt(now.plus(Constants.AUTH_TOKEN_EXPIRATION_TIME, ChronoUnit.MILLIS))
                 .subject(username)
                 .build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

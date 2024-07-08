@@ -13,7 +13,7 @@ public class TokenBlacklistService {
     private final Map<String, Long> tokenBlacklist = new ConcurrentHashMap<>();
 
     public void addToken(String token) {
-        long expirationTime = System.currentTimeMillis() + Constants.TOKEN_EXPIRATION_TIME;
+        long expirationTime = System.currentTimeMillis() + Constants.AUTH_TOKEN_EXPIRATION_TIME;
         tokenBlacklist.put(token, expirationTime);
     }
 
@@ -21,7 +21,7 @@ public class TokenBlacklistService {
         return tokenBlacklist.containsKey(token);
     }
 
-    @Scheduled(fixedRate = Constants.TOKEN_EXPIRATION_TIME)
+    @Scheduled(fixedRate = Constants.AUTH_TOKEN_EXPIRATION_TIME)
     public void cleanUpExpiredTokens() {
         long now = System.currentTimeMillis();
         tokenBlacklist.entrySet().removeIf(entry -> entry.getValue() < now);
