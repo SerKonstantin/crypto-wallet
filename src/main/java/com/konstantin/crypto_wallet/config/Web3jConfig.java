@@ -20,7 +20,7 @@ public class Web3jConfig {
 
     @Bean
     public Web3j web3j() {
-        var apiKey = EnvironmentUtils.getInfuraApiKey();
+        var apiKey = EnvironmentUtils.getEnvVariable("INFURA_API_KEY");
         return Web3j.build(new HttpService(url + apiKey));
     }
 
