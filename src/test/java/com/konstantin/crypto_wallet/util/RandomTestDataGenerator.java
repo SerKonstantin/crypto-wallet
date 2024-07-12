@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 @Component
-public class TestUtils {
+public class RandomTestDataGenerator {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -33,14 +33,14 @@ public class TestUtils {
 
     private String passwordInput;
 
-    public TestData generateData() {
+    public RandomTestData generateData() {
         var user = generateUser();
         var wallet = generateWallet(user);
         user.getWallets().add(wallet);
         userRepository.save(user);
         walletRepository.save(wallet);
         var token = generateToken(user);
-        return new TestData(user, passwordInput, token, wallet);
+        return new RandomTestData(user, passwordInput, token, wallet);
     }
 
     public void cleanAllRepositories() {
@@ -83,18 +83,19 @@ public class TestUtils {
         var slug = walletName.replaceAll(" ", "").toLowerCase();
         return Instancio.of(Wallet.class)
                 .ignore(Select.field(Wallet::getId))
-                .supply(Select.field(Wallet::getAddress), () -> faker.regexify("[a-f0-9]{64}"))
+                .supply(Select.field(Wallet::getAddress), () -> "0x" + faker.regexify("[a-f0-9]{40}"))
                 .supply(Select.field(Wallet::getName), () -> walletName)
                 .supply(Select.field(Wallet::getSlug), () -> slug)
                 .ignore(Select.field(Wallet::getCreatedAt))
                 .ignore(Select.field(Wallet::getUpdatedAt))
                 .supply(Select.field(Wallet::getUser), () -> user)
+                .supply(Select.field(Wallet::getTransactions), () -> new ArrayList())
                 .create();
     }
 
     @Getter
     @AllArgsConstructor
-    public class TestData {
+    public class RandomTestData {
         private final User user;
         private final String passwordInput;
         private final SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;

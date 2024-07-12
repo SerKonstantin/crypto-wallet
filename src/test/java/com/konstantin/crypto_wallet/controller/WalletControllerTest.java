@@ -7,7 +7,7 @@ import com.konstantin.crypto_wallet.dto.wallet.WalletImportDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletUpdateDTO;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import com.konstantin.crypto_wallet.repository.WalletRepository;
-import com.konstantin.crypto_wallet.util.TestUtils;
+import com.konstantin.crypto_wallet.util.RandomTestDataGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -47,16 +47,16 @@ public class WalletControllerTest {
     private ObjectMapper om;
 
     @Autowired
-    private TestUtils testUtils;
+    private RandomTestDataGenerator randomTestDataGenerator;
 
     @AfterEach
     public void clean() {
-        testUtils.cleanAllRepositories();
+        randomTestDataGenerator.cleanAllRepositories();
     }
 
     @Test
     public void testCreateWallet() throws Exception {
-        var testData = testUtils.generateData();
+        var testData = randomTestDataGenerator.generateData();
 
         var walletCreateDTO = new WalletCreateDTO();
         walletCreateDTO.setAddress("0x1234");
@@ -88,7 +88,7 @@ public class WalletControllerTest {
         var request = post("/api/wallets")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(walletCreateDTO))
-                .with(testUtils.generateData().getToken());
+                .with(randomTestDataGenerator.generateData().getToken());
         mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 
@@ -103,7 +103,7 @@ public class WalletControllerTest {
 
     @Test
     public void testShowWallets() throws Exception {
-        var testData = testUtils.generateData();
+        var testData = randomTestDataGenerator.generateData();
 
         var request = get("/api/wallets");
         mockMvc.perform(request).andExpect(status().isUnauthorized());
@@ -115,8 +115,8 @@ public class WalletControllerTest {
 
     @Test
     public void testShowWallet() throws Exception {
-        var testData = testUtils.generateData();
-        var otherUserData = testUtils.generateData();
+        var testData = randomTestDataGenerator.generateData();
+        var otherUserData = randomTestDataGenerator.generateData();
 
         var request = get("/api/wallets/" + testData.getWallet().getSlug());
         mockMvc.perform(request).andExpect(status().isUnauthorized());
@@ -128,8 +128,8 @@ public class WalletControllerTest {
 
     @Test
     public void testUpdateWallet() throws Exception {
-        var testData = testUtils.generateData();
-        var otherUserData = testUtils.generateData();
+        var testData = randomTestDataGenerator.generateData();
+        var otherUserData = randomTestDataGenerator.generateData();
 
         var walletUpdateDTO = new WalletUpdateDTO();
         walletUpdateDTO.setName("New Name");
@@ -149,7 +149,7 @@ public class WalletControllerTest {
 
     @Test
     public void testUpdateWalletFails() throws Exception {
-        var testData = testUtils.generateData();
+        var testData = randomTestDataGenerator.generateData();
 
         var walletUpdateDTO = new WalletUpdateDTO();
         walletUpdateDTO.setName("");
@@ -163,8 +163,8 @@ public class WalletControllerTest {
 
     @Test
     public void testDeleteWallet() throws Exception {
-        var testData = testUtils.generateData();
-        var otherUserData = testUtils.generateData();
+        var testData = randomTestDataGenerator.generateData();
+        var otherUserData = randomTestDataGenerator.generateData();
 
         assertThat(walletRepository.findById(testData.getWallet().getId())).isPresent();
         var request = delete("/api/wallets/" + testData.getWallet().getSlug())
@@ -177,7 +177,7 @@ public class WalletControllerTest {
 
     @Test
     public void testImportWallet() throws Exception {
-        var testData = testUtils.generateData();
+        var testData = randomTestDataGenerator.generateData();
 
         var walletImportDTO = new WalletImportDTO();
         walletImportDTO.setPrivateKey("1383ad52dca31407f1955d25c79785ff75249cf975d481c7d3a1c96ea9e638a5");
@@ -209,7 +209,7 @@ public class WalletControllerTest {
         var request = post("/api/wallets/import")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(walletImportDTO))
-                .with(testUtils.generateData().getToken());
+                .with(randomTestDataGenerator.generateData().getToken());
         mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 
@@ -222,7 +222,7 @@ public class WalletControllerTest {
         var request = post("/api/wallets/import")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(walletImportDTO))
-                .with(testUtils.generateData().getToken());
+                .with(randomTestDataGenerator.generateData().getToken());
         mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 }

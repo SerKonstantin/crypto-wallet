@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.konstantin.crypto_wallet.dto.auth.AuthRequest;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import com.konstantin.crypto_wallet.util.JWTUtils;
-import com.konstantin.crypto_wallet.util.TestUtils;
+import com.konstantin.crypto_wallet.util.RandomTestDataGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class AuthControllerTest {
     private JWTUtils jwtUtils;
 
     @Autowired
-    private TestUtils testUtils;
+    private RandomTestDataGenerator randomTestDataGenerator;
 
     @Autowired
     private UserRepository userRepository;
@@ -39,12 +39,12 @@ public class AuthControllerTest {
 
     @AfterEach
     public void clean() {
-        testUtils.cleanAllRepositories();
+        randomTestDataGenerator.cleanAllRepositories();
     }
 
     @Test
     public void testLogin() throws Exception {
-        var testData = testUtils.generateData();
+        var testData = randomTestDataGenerator.generateData();
 
         var authRequest = new AuthRequest(testData.getUser().getUsername(), testData.getPasswordInput());
         var request = post("/api/login")
@@ -56,7 +56,7 @@ public class AuthControllerTest {
 
     @Test
     public void testLoginFail() throws Exception {
-        var username = testUtils.generateData().getUser().getUsername();
+        var username = randomTestDataGenerator.generateData().getUser().getUsername();
 
         var authRequest = new AuthRequest(username, "incorrect_password");
         var request = post("/api/login")
@@ -67,7 +67,7 @@ public class AuthControllerTest {
 
     @Test
     public void testLogout() throws Exception {
-        var email = testUtils.generateData().getUser().getEmail();
+        var email = randomTestDataGenerator.generateData().getUser().getEmail();
         var token = jwtUtils.generateAuthToken(email);
         var getRequest = get("/api/profile")
                 .header("Authorization", "Bearer " + token);

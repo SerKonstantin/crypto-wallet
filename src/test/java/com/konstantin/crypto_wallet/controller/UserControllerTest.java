@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.konstantin.crypto_wallet.dto.user.UserRegistrationDTO;
 import com.konstantin.crypto_wallet.dto.user.UserUpdateDTO;
 import com.konstantin.crypto_wallet.repository.UserRepository;
-import com.konstantin.crypto_wallet.util.TestUtils;
+import com.konstantin.crypto_wallet.util.RandomTestDataGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -47,11 +47,11 @@ public class UserControllerTest {
     private ObjectMapper om;
 
     @Autowired
-    private TestUtils testUtils;
+    private RandomTestDataGenerator randomTestDataGenerator;
 
     @AfterEach
     public void clean() {
-        testUtils.cleanAllRepositories();
+        randomTestDataGenerator.cleanAllRepositories();
     }
 
     @Test
@@ -110,7 +110,7 @@ public class UserControllerTest {
 
     @Test
     public void testShowProfile() throws Exception {
-        var testData = testUtils.generateData();
+        var testData = randomTestDataGenerator.generateData();
         var user = testData.getUser();
 
         var request = get("/api/profile");
@@ -125,7 +125,7 @@ public class UserControllerTest {
 
     @Test
     public void testUpdateProfile() throws Exception {
-        var testData = testUtils.generateData();
+        var testData = randomTestDataGenerator.generateData();
 
         var userUpdateDto = new UserUpdateDTO();
         userUpdateDto.setNickname(JsonNullable.of("NewNickname"));
@@ -150,7 +150,7 @@ public class UserControllerTest {
 
     @Test
     public void testPartialUpdateUser() throws Exception {
-        var testData = testUtils.generateData();
+        var testData = randomTestDataGenerator.generateData();
 
         var userUpdateDto = new UserUpdateDTO();
         userUpdateDto.setNickname(JsonNullable.of("NewNickname"));
@@ -177,13 +177,13 @@ public class UserControllerTest {
         var request = put("/api/profile")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(userUpdateDto));
-        var token = testUtils.generateData().getToken();
+        var token = randomTestDataGenerator.generateData().getToken();
         mockMvc.perform(request.with(token)).andExpect(status().isBadRequest());
     }
 
     @Test
     public void testDeleteUser() throws Exception {
-        var testData = testUtils.generateData();
+        var testData = randomTestDataGenerator.generateData();
         var userId = testData.getUser().getId();
 
         assertThat(userRepository.findById(userId)).isPresent();
