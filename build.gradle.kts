@@ -43,7 +43,6 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-	implementation("org.instancio:instancio-junit:4.5.0")
 	implementation("net.datafaker:datafaker:2.1.0")
 
 	implementation("org.springframework.boot:spring-boot-starter-logging")

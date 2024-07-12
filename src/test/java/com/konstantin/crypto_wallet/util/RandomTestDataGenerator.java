@@ -8,8 +8,6 @@ import com.konstantin.crypto_wallet.repository.WalletRepository;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.datafaker.Faker;
-import org.instancio.Instancio;
-import org.instancio.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -53,18 +51,16 @@ public class RandomTestDataGenerator {
         passwordInput = faker.internet().password(Constants.MIN_PASSWORD_LENGTH, 100);
         var password = passwordEncoder.encode(passwordInput);
 
-        return Instancio.of(User.class)
-                .ignore(Select.field(User::getId))
-                .supply(Select.field(User::getNickname), this::generateNicknameWithMinLength)
-                .supply(Select.field(User::getEmail), () -> faker.internet().emailAddress())
-                .supply(Select.field(User::getPassword), () -> password)
-                .ignore(Select.field(User::getCreatedAt))
-                .ignore(Select.field(User::getUpdatedAt))
-                .supply(Select.field(User::getWallets), () -> new ArrayList())
-                .create();
+        var user = new User();
+        user.setNickname(generateNickname());
+        user.setEmail(faker.internet().emailAddress());
+        user.setPassword(password);
+        user.setWallets(new ArrayList<>());
+
+        return user;
     }
 
-    private String generateNicknameWithMinLength() {
+    private String generateNickname() {
         var faker = new Faker();
         String nickname;
         do {
@@ -81,16 +77,15 @@ public class RandomTestDataGenerator {
         var faker = new Faker();
         var walletName = faker.lorem().word() + " wallet";
         var slug = walletName.replaceAll(" ", "").toLowerCase();
-        return Instancio.of(Wallet.class)
-                .ignore(Select.field(Wallet::getId))
-                .supply(Select.field(Wallet::getAddress), () -> "0x" + faker.regexify("[a-f0-9]{40}"))
-                .supply(Select.field(Wallet::getName), () -> walletName)
-                .supply(Select.field(Wallet::getSlug), () -> slug)
-                .ignore(Select.field(Wallet::getCreatedAt))
-                .ignore(Select.field(Wallet::getUpdatedAt))
-                .supply(Select.field(Wallet::getUser), () -> user)
-                .supply(Select.field(Wallet::getTransactions), () -> new ArrayList())
-                .create();
+
+        var wallet = new Wallet();
+        wallet.setAddress("0x" + faker.regexify("[a-f0-9]{40}"));
+        wallet.setName(walletName);
+        wallet.setSlug(slug);
+        wallet.setUser(user);
+        wallet.setTransactions(new ArrayList<>());
+
+        return wallet;
     }
 
     @Getter
