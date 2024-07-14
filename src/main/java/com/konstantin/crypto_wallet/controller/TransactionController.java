@@ -42,8 +42,8 @@ public class TransactionController {
 
     @GetMapping("")
     public ResponseEntity<List<TransactionResponseDTO>> getTransactionHistory(@PathVariable String slug) {
-        // TODO: Insert method to get transaction history
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        var response = transactionService.getTransactions(slug);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{transactionId}")

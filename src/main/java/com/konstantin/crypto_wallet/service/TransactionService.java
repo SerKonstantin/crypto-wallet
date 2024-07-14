@@ -122,4 +122,20 @@ public class TransactionService {
 
         return transactionMapper.map(transaction);
     }
+
+    @Transactional(readOnly = true)
+    public List<TransactionResponseDTO> getTransactions(String walletSlug) {
+        var user = userUtils.getCurrentUser();
+        var wallet = slugUtils.getWalletByUserAndSlug(user, walletSlug);
+
+        var transactions = transactionRepository.findByWalletIdOrderByCreatedAtDesc(wallet.getId());
+
+        if (transactions == null || transactions.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return transactions.stream()
+                .map(transactionMapper::map)
+                .collect(Collectors.toList());
+    }
 }

@@ -8,11 +8,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    List<Transaction> findByWalletId(Long walletId);
 
     Optional<Transaction> findByTransactionHash(String transactionHash);
 
     Boolean existsByWalletIdAndStatus(Long walletId, TransactionStatus status);
 
     Optional<Transaction> findFirstByWalletIdAndStatusOrderByCreatedAtDesc(Long walletId, TransactionStatus status);
+
+    List<Transaction> findByWalletIdOrderByCreatedAtDesc(Long walletId);
 }
