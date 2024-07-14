@@ -5,6 +5,7 @@ build/
 !**/src/test/**/build/
 .env
 .personal.txt
+test_wallet.json
 
 ### STS ###
 .apt_generated
