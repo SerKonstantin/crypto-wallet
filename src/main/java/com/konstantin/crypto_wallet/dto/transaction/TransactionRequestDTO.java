@@ -12,6 +12,9 @@ import java.math.BigInteger;
 public class TransactionRequestDTO {
 
     @NotBlank
+    private String fromAddress;
+
+    @NotBlank
     private String toAddress;
 
     @Positive
@@ -23,10 +26,14 @@ public class TransactionRequestDTO {
     @Positive
     private BigInteger gasLimit;
 
+    @Positive
+    private BigInteger fee;
+
+    @Positive
+    private BigInteger total;
+
     @NotBlank
     private String privateKey;
 
-    @NotBlank
-    private String verificationToken;
 
 }

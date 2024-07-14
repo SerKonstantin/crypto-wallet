@@ -11,12 +11,13 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class TransactionResponseDTO {
-    private String transactionHash;
     private String fromAddress;
     private String toAddress;
     private TransactionType type;
     private BigInteger amount;
     private BigInteger fee;
+    private BigInteger total;
+    private String transactionHash;
     private LocalDateTime createdAt;
     private TransactionStatus status;
 }

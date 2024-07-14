@@ -20,6 +20,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -42,7 +43,7 @@ public class Wallet {
     private User user;
 
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Transaction> transactions;
+    private List<Transaction> transactions = new ArrayList<>();;
 
     @CreatedDate
     @Column(updatable = false)

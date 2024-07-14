@@ -42,23 +42,32 @@ public class Transaction {
     private Wallet wallet;
 
     @NotBlank
+    @Column(updatable = false)
     private String fromAddress;
 
     @NotBlank
+    @Column(updatable = false)
     private String toAddress;
 
     @Enumerated(EnumType.STRING)
     @NotNull
+    @Column(updatable = false)
     private TransactionType type;
 
     @Positive
+    @Column(updatable = false)
     private BigInteger amount;
 
     @PositiveOrZero
+    @Column(updatable = false)
     private BigInteger fee;
 
+    @Positive
+    @Column(updatable = false)
+    private BigInteger total;
+
     @NotNull
-    @Column(unique = true)
+    @Column(unique = true, updatable = false)
     private String transactionHash;
 
     @CreatedDate

@@ -2,8 +2,6 @@ package com.konstantin.crypto_wallet.controller;
 
 import com.konstantin.crypto_wallet.dto.transaction.TransactionRequestDTO;
 import com.konstantin.crypto_wallet.dto.transaction.TransactionResponseDTO;
-import com.konstantin.crypto_wallet.dto.transaction.TransactionVerificationRequestDTO;
-import com.konstantin.crypto_wallet.dto.transaction.TransactionVerificationResponseDTO;
 import com.konstantin.crypto_wallet.service.TransactionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +22,6 @@ public class TransactionController {
 
     @Autowired
     private TransactionService transactionService;
-
-    @PostMapping("/precheck")
-    public ResponseEntity<TransactionVerificationResponseDTO> verifyTransaction(
-            @PathVariable String slug,
-            @Valid @RequestBody TransactionVerificationRequestDTO requestDTO) throws Exception {
-        var responseDTO = transactionService.verifyTransaction(slug, requestDTO);
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-    }
 
     @PostMapping("")
     public ResponseEntity<TransactionResponseDTO> processTransaction(
