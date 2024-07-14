@@ -41,7 +41,8 @@ public class TransactionService {
     private SlugUtilsForWallet slugUtils;
 
     @Transactional
-    public TransactionResponseDTO processTransaction(String walletSlug, TransactionRequestDTO requestDTO) throws Exception {
+    public TransactionResponseDTO processTransaction(String walletSlug, TransactionRequestDTO requestDTO)
+            throws Exception {
         var user = userUtils.getCurrentUser();
         var wallet = slugUtils.getWalletByUserAndSlug(user, walletSlug);
 
@@ -62,8 +63,15 @@ public class TransactionService {
             throw new IllegalArgumentException("Insufficient funds on wallet " + wallet.getName());
         }
 
-        var nonce = web3j.ethGetTransactionCount(wallet.getAddress(), DefaultBlockParameterName.LATEST).send().getTransactionCount();
-        var rawTransaction = RawTransaction.createEtherTransaction(nonce, requestDTO.getGasPrice(), requestDTO.getGasLimit(), requestDTO.getToAddress(), requestDTO.getAmount());
+        var nonce = web3j.ethGetTransactionCount(wallet.getAddress(), DefaultBlockParameterName.LATEST)
+                .send()
+                .getTransactionCount();
+        var rawTransaction = RawTransaction.createEtherTransaction(
+                nonce,
+                requestDTO.getGasPrice(),
+                requestDTO.getGasLimit(),
+                requestDTO.getToAddress(),
+                requestDTO.getAmount());
         var signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
         var hexValue = Numeric.toHexString(signedMessage);
 

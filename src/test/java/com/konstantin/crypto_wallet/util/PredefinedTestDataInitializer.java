@@ -39,7 +39,7 @@ public class PredefinedTestDataInitializer {
         user.getWallets().add(wallet);
 
         userRepository.save(user);
-         walletRepository.save(wallet);
+        walletRepository.save(wallet);
 
         var token = jwt().jwt(builder -> builder.subject(user.getUsername()));
 

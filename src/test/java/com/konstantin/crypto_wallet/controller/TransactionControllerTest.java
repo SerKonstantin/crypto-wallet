@@ -43,7 +43,7 @@ public class TransactionControllerTest {
 
         var requestDTO = new TransactionRequestDTO();
         requestDTO.setFromAddress(testData.getWallet().getAddress());
-        requestDTO.setToAddress("0xAb14868d1Abd7dE5810E70Ed3029239A09625d08"); // TODO add predefined address to verify receiving
+        requestDTO.setToAddress("0xAb14868d1Abd7dE5810E70Ed3029239A09625d08"); // TODO change address for receiving test
         requestDTO.setAmount(BigInteger.valueOf(10_000_000_000_000L));
         requestDTO.setGasPrice(BigInteger.valueOf(6_000_000_000L));
         requestDTO.setGasLimit(BigInteger.valueOf(21_000));
