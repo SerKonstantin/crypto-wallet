@@ -4,7 +4,11 @@ package com.konstantin.crypto_wallet.service;
 
 import com.konstantin.crypto_wallet.dto.transaction.TransactionRequestDTO;
 import com.konstantin.crypto_wallet.dto.transaction.TransactionResponseDTO;
+import com.konstantin.crypto_wallet.exception.PendingTransactionException;
+import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
 import com.konstantin.crypto_wallet.mapper.TransactionMapper;
+import com.konstantin.crypto_wallet.model.transaction.Transaction;
+import com.konstantin.crypto_wallet.model.transaction.TransactionStatus;
 import com.konstantin.crypto_wallet.model.transaction.TransactionType;
 import com.konstantin.crypto_wallet.repository.TransactionRepository;
 import com.konstantin.crypto_wallet.repository.WalletRepository;
@@ -19,6 +23,10 @@ import org.web3j.crypto.TransactionEncoder;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.utils.Numeric;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -40,11 +48,34 @@ public class TransactionService {
     @Autowired
     private SlugUtilsForWallet slugUtils;
 
+    @Transactional(readOnly = true)
+    public boolean hasPendingTransaction(Long walletId) {
+        return transactionRepository.existsByWalletIdAndStatus(walletId, TransactionStatus.PENDING);
+    }
+
+
+    @Transactional(readOnly = true)
+    public Long getPendingTransactionId(String walletSlug) {
+        var user = userUtils.getCurrentUser();
+        var wallet = slugUtils.getWalletByUserAndSlug(user, walletSlug);
+        var pendingTransaction = transactionRepository.findFirstByWalletIdAndStatusOrderByCreatedAtDesc(
+                wallet.getId(),
+                TransactionStatus.PENDING
+        );
+        return pendingTransaction.map(Transaction::getId).orElseThrow(
+                () -> new ResourceNotFoundException("No pending transaction found")
+        );
+    }
+
     @Transactional
     public TransactionResponseDTO processTransaction(String walletSlug, TransactionRequestDTO requestDTO)
             throws Exception {
         var user = userUtils.getCurrentUser();
         var wallet = slugUtils.getWalletByUserAndSlug(user, walletSlug);
+
+        if (hasPendingTransaction(wallet.getId())) {
+            throw new PendingTransactionException("Transaction is in progress, please wait.");
+        }
 
         var credentials = Credentials.create(requestDTO.getPrivateKey());
         if (!credentials.getAddress().equals(wallet.getAddress())) {

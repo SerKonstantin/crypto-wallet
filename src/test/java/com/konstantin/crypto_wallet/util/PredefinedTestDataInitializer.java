@@ -2,6 +2,7 @@ package com.konstantin.crypto_wallet.util;
 
 import com.konstantin.crypto_wallet.model.User;
 import com.konstantin.crypto_wallet.model.Wallet;
+import com.konstantin.crypto_wallet.repository.TransactionRepository;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import com.konstantin.crypto_wallet.repository.WalletRepository;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,9 @@ public class PredefinedTestDataInitializer {
 
     @Autowired
     private WalletRepository walletRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -49,6 +53,7 @@ public class PredefinedTestDataInitializer {
     }
 
     public void cleanRelatedRepositories() {
+        transactionRepository.deleteAll();
         walletRepository.deleteAll();
         userRepository.deleteAll();
     }

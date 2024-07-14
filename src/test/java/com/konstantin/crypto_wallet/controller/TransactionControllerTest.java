@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -51,19 +52,27 @@ public class TransactionControllerTest {
         requestDTO.setTotal(requestDTO.getAmount().add(requestDTO.getFee()));
         requestDTO.setPrivateKey(testData.getPrivateKey());
 
-        mockMvc.perform(post("/api/wallets/{slug}/transactions", testData.getWallet().getSlug())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(om.writeValueAsString(requestDTO))
-                        .with(testData.getToken()))
+        var request = post("/api/wallets/{slug}/transactions", testData.getWallet().getSlug())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(requestDTO))
+                .with(testData.getToken());
+
+        mockMvc.perform(request).andExpect(status().isOk());
+
+        // Second attempt to make same transaction should redirect to transaction page with pending status
+        mockMvc.perform(request).andExpect(status().isTemporaryRedirect());
+
+        mockMvc.perform(get("/api/wallets/{slug}/transactions", testData.getWallet().getSlug())
+                .with(testData.getToken()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.fromAddress").value(requestDTO.getFromAddress()))
-                .andExpect(jsonPath("$.toAddress").value(requestDTO.getToAddress()))
-                .andExpect(jsonPath("$.type").value(TransactionType.SEND.toString()))
-                .andExpect(jsonPath("$.amount").value(requestDTO.getAmount()))
-                .andExpect(jsonPath("$.fee").value(requestDTO.getFee()))
-                .andExpect(jsonPath("$.total").value(requestDTO.getTotal()))
-                .andExpect(jsonPath("$.transactionHash").exists())
-                .andExpect(jsonPath("$.status").value(TransactionStatus.PENDING.toString()));
+                .andExpect(jsonPath("$[0].fromAddress").value(requestDTO.getFromAddress()))
+                .andExpect(jsonPath("$[0].toAddress").value(requestDTO.getToAddress()))
+                .andExpect(jsonPath("$[0].type").value(TransactionType.SEND.toString()))
+                .andExpect(jsonPath("$[0].amount").value(requestDTO.getAmount()))
+                .andExpect(jsonPath("$[0].fee").value(requestDTO.getFee()))
+                .andExpect(jsonPath("$[0].total").value(requestDTO.getTotal()))
+                .andExpect(jsonPath("$[0].transactionHash").exists())
+                .andExpect(jsonPath("$[0].status").value(TransactionStatus.PENDING.toString()));
     }
 
 }

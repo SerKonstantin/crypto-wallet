@@ -2,9 +2,11 @@ package com.konstantin.crypto_wallet.controller;
 
 import com.konstantin.crypto_wallet.dto.transaction.TransactionRequestDTO;
 import com.konstantin.crypto_wallet.dto.transaction.TransactionResponseDTO;
+import com.konstantin.crypto_wallet.exception.PendingTransactionException;
 import com.konstantin.crypto_wallet.service.TransactionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,8 +29,15 @@ public class TransactionController {
     public ResponseEntity<TransactionResponseDTO> processTransaction(
             @PathVariable String slug,
             @Valid @RequestBody TransactionRequestDTO requestDTO) throws Exception {
-        var responseDTO = transactionService.processTransaction(slug, requestDTO);
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+        try {
+            var response = transactionService.processTransaction(slug, requestDTO);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (PendingTransactionException e) {
+            var pendingTransactionId = transactionService.getPendingTransactionId(slug);
+            return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT)
+                    .header(HttpHeaders.LOCATION, "/api/wallets/" + slug + "/transactions/" + pendingTransactionId)
+                    .build();
+        }
     }
 
     @GetMapping("")
