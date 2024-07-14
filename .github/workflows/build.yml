@@ -31,6 +31,8 @@ jobs:
           ./gradlew test
         env:
           INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
+          TEST_WALLET_PRIVATE_KEY: ${{ secrets.TEST_WALLET_PRIVATE_KEY }}
+          TEST_WALLET_ADDRESS: ${{ secrets.TEST_WALLET_ADDRESS }}
 
       - name: Publish code coverage
         uses: paambaati/codeclimate-action@v5.0.0
