@@ -2,6 +2,7 @@ package com.konstantin.crypto_wallet.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.konstantin.crypto_wallet.dto.transaction.TransactionRequestDTO;
+import com.konstantin.crypto_wallet.dto.transaction.TransactionResponseDTO;
 import com.konstantin.crypto_wallet.model.transaction.TransactionStatus;
 import com.konstantin.crypto_wallet.model.transaction.TransactionType;
 import com.konstantin.crypto_wallet.util.PredefinedTestDataInitializer;
@@ -42,6 +43,7 @@ public class TransactionControllerTest {
     public void testProcessTransaction() throws Exception {
         var testData = predefinedTestDataInitializer.initializeData();
 
+        // Check transaction sending
         var requestDTO = new TransactionRequestDTO();
         requestDTO.setFromAddress(testData.getWallet().getAddress());
         requestDTO.setToAddress("0xAb14868d1Abd7dE5810E70Ed3029239A09625d08"); // TODO change address for receiving test
@@ -57,22 +59,34 @@ public class TransactionControllerTest {
                 .content(om.writeValueAsString(requestDTO))
                 .with(testData.getToken());
 
-        mockMvc.perform(request).andExpect(status().isOk());
+        var result = mockMvc.perform(request).andExpect(status().isOk()).andReturn();
+        var response = om.readValue(result.getResponse().getContentAsString(), TransactionResponseDTO.class);
+        var transactionId = response.getId();
 
         // Second attempt to make same transaction should redirect to transaction page with pending status
         mockMvc.perform(request).andExpect(status().isTemporaryRedirect());
 
+        // Check list of transactions in history
         mockMvc.perform(get("/api/wallets/{slug}/transactions", testData.getWallet().getSlug())
                 .with(testData.getToken()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].fromAddress").value(requestDTO.getFromAddress()))
-                .andExpect(jsonPath("$[0].toAddress").value(requestDTO.getToAddress()))
-                .andExpect(jsonPath("$[0].type").value(TransactionType.SEND.toString()))
-                .andExpect(jsonPath("$[0].amount").value(requestDTO.getAmount()))
-                .andExpect(jsonPath("$[0].fee").value(requestDTO.getFee()))
-                .andExpect(jsonPath("$[0].total").value(requestDTO.getTotal()))
-                .andExpect(jsonPath("$[0].transactionHash").exists())
-                .andExpect(jsonPath("$[0].status").value(TransactionStatus.PENDING.toString()));
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].transactionHash").exists());
+
+        // Check individual transaction
+        mockMvc.perform(get(
+                "/api/wallets/{slug}/transactions/{transactiondId}",
+                        testData.getWallet().getSlug(), transactionId)
+                        .with(testData.getToken()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fromAddress").value(requestDTO.getFromAddress()))
+                .andExpect(jsonPath("$.toAddress").value(requestDTO.getToAddress()))
+                .andExpect(jsonPath("$.type").value(TransactionType.SEND.toString()))
+                .andExpect(jsonPath("$.amount").value(requestDTO.getAmount()))
+                .andExpect(jsonPath("$.fee").value(requestDTO.getFee()))
+                .andExpect(jsonPath("$.total").value(requestDTO.getTotal()))
+                .andExpect(jsonPath("$.transactionHash").exists())
+                .andExpect(jsonPath("$.status").value(TransactionStatus.PENDING.toString()));
     }
 
 }
