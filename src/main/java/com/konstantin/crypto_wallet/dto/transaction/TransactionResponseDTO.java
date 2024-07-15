@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class TransactionResponseDTO {
+    private Long id;
     private String fromAddress;
     private String toAddress;
     private TransactionType type;

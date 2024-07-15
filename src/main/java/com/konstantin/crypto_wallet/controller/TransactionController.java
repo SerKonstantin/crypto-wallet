@@ -41,17 +41,17 @@ public class TransactionController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<TransactionResponseDTO>> getTransactionHistory(@PathVariable String slug) {
+    public ResponseEntity<List<TransactionResponseDTO>> showTransactionHistory(@PathVariable String slug) {
         var response = transactionService.getTransactions(slug);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{transactionId}")
-    public ResponseEntity<TransactionResponseDTO> getTransactionDetails(
+    public ResponseEntity<TransactionResponseDTO> showTransactionDetails(
             @PathVariable String slug,
             @PathVariable Long transactionId) {
-        // TODO: Insert method to view specific transaction details
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        var response = transactionService.getTransaction(slug, transactionId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

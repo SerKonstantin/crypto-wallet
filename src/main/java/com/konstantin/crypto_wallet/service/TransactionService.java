@@ -138,4 +138,18 @@ public class TransactionService {
                 .map(transactionMapper::map)
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public TransactionResponseDTO getTransaction(String walletSlug, Long transactionId) {
+        var user = userUtils.getCurrentUser();
+        var wallet = slugUtils.getWalletByUserAndSlug(user, walletSlug);
+
+        var transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
+        if (!wallet.getTransactions().contains(transaction)) {
+            throw new ResourceNotFoundException("Transaction not found for wallet " + wallet.getName());
+        }
+
+        return transactionMapper.map(transaction);
+    }
 }
