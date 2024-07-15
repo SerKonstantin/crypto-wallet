@@ -6,7 +6,7 @@ import com.konstantin.crypto_wallet.dto.user.UserRegistrationDTO;
 import com.konstantin.crypto_wallet.dto.user.UserUpdateDTO;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import com.konstantin.crypto_wallet.util.RandomTestDataGenerator;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -49,8 +49,8 @@ public class UserControllerTest {
     @Autowired
     private RandomTestDataGenerator randomTestDataGenerator;
 
-    @AfterEach
-    public void clean() {
+    @AfterAll
+    public static void clean(@Autowired RandomTestDataGenerator randomTestDataGenerator) {
         randomTestDataGenerator.cleanAllRepositories();
     }
 
@@ -92,9 +92,10 @@ public class UserControllerTest {
     }
 
     private Stream<Arguments> supplyRegisterAndUpdateWithInvalidData() {
-        var nickname = "TestUser";
-        var email = "testuser@gmail.com";
-        var password = "qwertyuiop";
+        var testData = randomTestDataGenerator.generateData();
+        var nickname = testData.getUser().getNickname();
+        var email = testData.getUser().getNickname();
+        var password = testData.getPasswordInput();
         return Stream.of(
                 Arguments.of("!@#$%^&*()[]{}", email, password),
                 Arguments.of("", email, password),
@@ -153,7 +154,7 @@ public class UserControllerTest {
         var testData = randomTestDataGenerator.generateData();
 
         var userUpdateDto = new UserUpdateDTO();
-        userUpdateDto.setNickname(JsonNullable.of("NewNickname"));
+        userUpdateDto.setNickname(JsonNullable.of("AnotherNewNickname"));
 
         var request = put("/api/profile")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -162,7 +163,7 @@ public class UserControllerTest {
 
         var updatedUser = userRepository.findById(testData.getUser().getId()).orElse(null);
         assertThat(updatedUser).isNotNull();
-        assertThat(updatedUser.getNickname()).isEqualTo("NewNickname");
+        assertThat(updatedUser.getNickname()).isEqualTo("AnotherNewNickname");
         assertThat(updatedUser.getEmail()).isEqualTo(testData.getUser().getEmail());
     }
 

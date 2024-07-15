@@ -6,7 +6,7 @@ import com.konstantin.crypto_wallet.dto.transaction.TransactionResponseDTO;
 import com.konstantin.crypto_wallet.model.transaction.TransactionStatus;
 import com.konstantin.crypto_wallet.model.transaction.TransactionType;
 import com.konstantin.crypto_wallet.util.PredefinedTestDataInitializer;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -34,8 +34,8 @@ public class TransactionControllerTest {
     @Autowired
     private PredefinedTestDataInitializer predefinedTestDataInitializer;
 
-    @AfterEach
-    public void clean() {
+    @AfterAll
+    public static void clean(@Autowired PredefinedTestDataInitializer predefinedTestDataInitializer) {
         predefinedTestDataInitializer.cleanRelatedRepositories();
     }
 

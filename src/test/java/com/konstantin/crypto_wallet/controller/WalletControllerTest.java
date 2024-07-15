@@ -8,7 +8,7 @@ import com.konstantin.crypto_wallet.dto.wallet.WalletUpdateDTO;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import com.konstantin.crypto_wallet.repository.WalletRepository;
 import com.konstantin.crypto_wallet.util.RandomTestDataGenerator;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -49,8 +49,8 @@ public class WalletControllerTest {
     @Autowired
     private RandomTestDataGenerator randomTestDataGenerator;
 
-    @AfterEach
-    public void clean() {
+    @AfterAll
+    public static void clean(@Autowired RandomTestDataGenerator randomTestDataGenerator) {
         randomTestDataGenerator.cleanAllRepositories();
     }
 
@@ -94,8 +94,8 @@ public class WalletControllerTest {
 
     private static Stream<Arguments> supplyInvalidWalletData() {
         return Stream.of(
-                Arguments.of("", "address"),
-                Arguments.of(null, "address"),
+                Arguments.of("", "0x2345"),
+                Arguments.of(null, "0x3456"),
                 Arguments.of("name", ""),
                 Arguments.of("name", null)
         );
