@@ -12,6 +12,7 @@ import com.konstantin.crypto_wallet.model.transaction.TransactionStatus;
 import com.konstantin.crypto_wallet.model.transaction.TransactionType;
 import com.konstantin.crypto_wallet.repository.TransactionRepository;
 import com.konstantin.crypto_wallet.repository.WalletRepository;
+import com.konstantin.crypto_wallet.tracker.PendingTransactionTracker;
 import com.konstantin.crypto_wallet.util.SlugUtilsForWallet;
 import com.konstantin.crypto_wallet.util.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,9 @@ public class TransactionService {
 
     @Autowired
     private SlugUtilsForWallet slugUtils;
+
+    @Autowired
+    private PendingTransactionTracker pendingTransactionTracker;
 
     @Transactional(readOnly = true)
     public boolean hasPendingTransaction(Long walletId) {
@@ -119,6 +123,7 @@ public class TransactionService {
         transaction.setTransactionHash(transactionHash);
 
         transactionRepository.save(transaction);
+        pendingTransactionTracker.addTransaction(transaction);
 
         return transactionMapper.map(transaction);
     }
