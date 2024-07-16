@@ -54,17 +54,17 @@ public class TransactionControllerTest {
         requestDTO.setTotal(requestDTO.getAmount().add(requestDTO.getFee()));
         requestDTO.setPrivateKey(testData.getPrivateKey());
 
-        var request = post("/api/wallets/{slug}/transactions", testData.getWallet().getSlug())
+        var sendingRequest = post("/api/wallets/{slug}/transactions", testData.getWallet().getSlug())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(requestDTO))
                 .with(testData.getToken());
 
-        var result = mockMvc.perform(request).andExpect(status().isOk()).andReturn();
+        var result = mockMvc.perform(sendingRequest).andExpect(status().isOk()).andReturn();
         var response = om.readValue(result.getResponse().getContentAsString(), TransactionResponseDTO.class);
         var transactionId = response.getId();
 
         // Second attempt to make same transaction should redirect to transaction page with pending status
-        mockMvc.perform(request).andExpect(status().isTemporaryRedirect());
+        mockMvc.perform(sendingRequest).andExpect(status().isTemporaryRedirect());
 
         // Check list of transactions in history
         mockMvc.perform(get("/api/wallets/{slug}/transactions", testData.getWallet().getSlug())
@@ -74,10 +74,11 @@ public class TransactionControllerTest {
                 .andExpect(jsonPath("$[0].transactionHash").exists());
 
         // Check individual transaction
-        mockMvc.perform(get(
+        var showTransactionRequest = get(
                 "/api/wallets/{slug}/transactions/{transactiondId}",
-                        testData.getWallet().getSlug(), transactionId)
-                        .with(testData.getToken()))
+                testData.getWallet().getSlug(), transactionId)
+                .with(testData.getToken());
+        mockMvc.perform(showTransactionRequest)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.fromAddress").value(requestDTO.getFromAddress()))
                 .andExpect(jsonPath("$.toAddress").value(requestDTO.getToAddress()))
@@ -87,6 +88,11 @@ public class TransactionControllerTest {
                 .andExpect(jsonPath("$.total").value(requestDTO.getTotal()))
                 .andExpect(jsonPath("$.transactionHash").exists())
                 .andExpect(jsonPath("$.status").value(TransactionStatus.PENDING.toString()));
+
+        // Check individual transaction again after delay to verify status change
+        Thread.sleep(13000);
+        mockMvc.perform(showTransactionRequest).andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(TransactionStatus.COMPLETED.toString()));
     }
 
 }
