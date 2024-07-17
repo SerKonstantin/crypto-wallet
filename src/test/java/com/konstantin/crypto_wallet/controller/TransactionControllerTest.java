@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.web3j.protocol.Web3j;
 
 import java.math.BigInteger;
 
@@ -34,6 +35,9 @@ public class TransactionControllerTest {
     @Autowired
     private PredefinedTestDataInitializer predefinedTestDataInitializer;
 
+    @Autowired
+    private Web3j web3j;
+
     @AfterAll
     public static void clean(@Autowired PredefinedTestDataInitializer predefinedTestDataInitializer) {
         predefinedTestDataInitializer.cleanRelatedRepositories();
@@ -48,7 +52,7 @@ public class TransactionControllerTest {
         requestDTO.setFromAddress(testData.getWallet().getAddress());
         requestDTO.setToAddress("0xAb14868d1Abd7dE5810E70Ed3029239A09625d08"); // TODO change address for receiving test
         requestDTO.setAmount(BigInteger.valueOf(10_000_000_000_000L));
-        requestDTO.setGasPrice(BigInteger.valueOf(6_000_000_000L));
+        requestDTO.setGasPrice(web3j.ethGasPrice().send().getGasPrice());
         requestDTO.setGasLimit(BigInteger.valueOf(21_000));
         requestDTO.setFee(requestDTO.getGasPrice().multiply(requestDTO.getGasLimit()));
         requestDTO.setTotal(requestDTO.getAmount().add(requestDTO.getFee()));
@@ -90,7 +94,7 @@ public class TransactionControllerTest {
                 .andExpect(jsonPath("$.status").value(TransactionStatus.PENDING.toString()));
 
         // Check individual transaction again after delay to verify status change
-        Thread.sleep(13000);
+        Thread.sleep(31000);
         mockMvc.perform(showTransactionRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(TransactionStatus.COMPLETED.toString()));
     }
