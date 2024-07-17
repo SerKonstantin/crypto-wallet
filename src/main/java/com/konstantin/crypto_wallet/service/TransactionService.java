@@ -157,4 +157,26 @@ public class TransactionService {
 
         return transactionMapper.map(transaction);
     }
+
+    @Transactional
+    public void fetchNewTransactions() {
+        // TODO implement!
+    }
+
+    @Transactional
+    public void checkAndUpdatePendingTransactions() {
+        var pendingTransactions = pendingTransactionTracker.getPendingTransactions();
+
+        pendingTransactions.forEach(transaction -> {
+            var receiptOpt = web3j.ethGetTransactionReceipt(transaction.getTransactionHash())
+                    .sendAsync().join().getTransactionReceipt();
+
+            receiptOpt.ifPresent(receipt -> {
+                var newStatus = receipt.isStatusOK() ? TransactionStatus.COMPLETED : TransactionStatus.FAILED;
+                transaction.setStatus(newStatus);
+                transactionRepository.save(transaction);
+                pendingTransactionTracker.removeTransaction(transaction);
+            });
+        });
+    }
 }

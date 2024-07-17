@@ -1,7 +1,7 @@
 package com.konstantin.crypto_wallet.scheduler;
 
 import com.konstantin.crypto_wallet.config.Constants;
-import com.konstantin.crypto_wallet.service.TransactionStatusService;
+import com.konstantin.crypto_wallet.service.TransactionService;
 import com.konstantin.crypto_wallet.tracker.PendingTransactionTracker;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.time.Duration;
 public class TransactionStatusScheduler {
 
     @Autowired
-    private TransactionStatusService transactionStatusService;
+    private TransactionService transactionService;
 
     @Autowired
     private PendingTransactionTracker pendingTransactionTracker;
@@ -32,7 +32,7 @@ public class TransactionStatusScheduler {
 
     public void checkPendingTransactions() {
         if (pendingTransactionTracker.hasPendingTransactions()) {
-            transactionStatusService.checkAndUpdatePendingTransactions();
+            transactionService.checkAndUpdatePendingTransactions();
         }
     }
 }
