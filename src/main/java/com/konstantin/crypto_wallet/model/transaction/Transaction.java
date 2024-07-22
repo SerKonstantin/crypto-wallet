@@ -14,6 +14,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -27,7 +28,9 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "transactions", indexes = @Index(name = "idx_transaction_hash", columnList = "transactionHash"))
+@Table(name = "transactions",
+        indexes = @Index(name = "idx_transaction_hash", columnList = "transactionHash"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"transactionHash", "type"}))
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
@@ -67,7 +70,7 @@ public class Transaction {
     private BigInteger total;
 
     @NotNull
-    @Column(unique = true, updatable = false)
+    @Column(updatable = false)
     private String transactionHash;
 
     @CreatedDate

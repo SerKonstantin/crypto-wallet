@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Component
-public class PendingTransactionTracker {
+public class TransactionTracker {
 
     private final Set<Transaction> pendingTransactions = Collections.synchronizedSet(new HashSet<>());
 

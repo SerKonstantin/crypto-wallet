@@ -35,5 +35,4 @@ public class TransactionRequestDTO {
     @NotBlank
     private String privateKey;
 
-
 }
