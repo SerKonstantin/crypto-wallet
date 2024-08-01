@@ -26,11 +26,11 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @PostMapping("")
-    public ResponseEntity<TransactionResponseDTO> processTransaction(
+    public ResponseEntity<TransactionResponseDTO> sendTransaction(
             @PathVariable String slug,
             @Valid @RequestBody TransactionRequestDTO requestDTO) throws Exception {
         try {
-            var response = transactionService.processTransaction(slug, requestDTO);
+            var response = transactionService.sendTransaction(slug, requestDTO);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (PendingTransactionException e) {
             var pendingTransactionId = transactionService.getPendingTransactionId(slug);
