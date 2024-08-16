@@ -223,13 +223,19 @@ public class TransactionService {
         });
     }
 
-    private void processTransaction(org.web3j.protocol.core.methods.response.Transaction transaction, Wallet wallet, TransactionType type) {
+    private void processTransaction(
+            org.web3j.protocol.core.methods.response.Transaction transaction,
+            Wallet wallet,
+            TransactionType type) {
         var newTransaction = createTransactionFromBlock(transaction, wallet, type);
         transactionRepository.save(newTransaction);
         transactionTracker.addTransaction(newTransaction);
     }
 
-    private Transaction createTransactionFromBlock(org.web3j.protocol.core.methods.response.Transaction transaction, Wallet wallet, TransactionType type) {
+    private Transaction createTransactionFromBlock(
+            org.web3j.protocol.core.methods.response.Transaction transaction,
+            Wallet wallet,
+            TransactionType type) {
         var newTransaction = new Transaction();
         newTransaction.setWallet(wallet);
         newTransaction.setFromAddress(transaction.getFrom());
@@ -248,7 +254,9 @@ public class TransactionService {
         return newTransaction;
     }
 
-    private void calculateSendTransactionFeeAndTotal(org.web3j.protocol.core.methods.response.Transaction transaction, Transaction newTransaction) {
+    private void calculateSendTransactionFeeAndTotal(
+            org.web3j.protocol.core.methods.response.Transaction transaction,
+            Transaction newTransaction) {
         try {
             var receipt = web3j.ethGetTransactionReceipt(transaction.getHash()).send().getTransactionReceipt()
                     .orElseThrow(() -> new RuntimeException("Transaction receipt not found"));
