@@ -8,7 +8,6 @@ import com.konstantin.crypto_wallet.repository.WalletRepository;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.stereotype.Component;
 
@@ -26,9 +25,6 @@ public class PredefinedTestDataInitializer {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     public PredefinedTestData initializeData() {
         var user = new User();
         user.setNickname("TestUser");
@@ -36,20 +32,28 @@ public class PredefinedTestDataInitializer {
 
         var wallet = new Wallet();
         wallet.setAddress(EnvironmentUtils.getEnvVariable("TEST_WALLET_ADDRESS"));
-        wallet.setName("TestWallet");
-        wallet.setSlug("testwallet");
+        wallet.setName("Test Wallet 1");
+        wallet.setSlug("testwallet1");
         wallet.setUser(user);
 
+        var receiverWallet = new Wallet();
+        receiverWallet.setAddress(EnvironmentUtils.getEnvVariable("RECEIVER_TEST_WALLET_ADDRESS"));
+        receiverWallet.setName("Test Wallet 2");
+        receiverWallet.setSlug("testwallet2");
+        receiverWallet.setUser(user);
+
         user.getWallets().add(wallet);
+        user.getWallets().add(receiverWallet);
 
         userRepository.save(user);
         walletRepository.save(wallet);
+        walletRepository.save(receiverWallet);
 
         var token = jwt().jwt(builder -> builder.subject(user.getUsername()));
 
         var privateKey = EnvironmentUtils.getEnvVariable("TEST_WALLET_PRIVATE_KEY");
 
-        return new PredefinedTestData(user, wallet, token, privateKey);
+        return new PredefinedTestData(user, wallet, receiverWallet, token, privateKey);
     }
 
     public void cleanRelatedRepositories() {
@@ -63,8 +67,8 @@ public class PredefinedTestDataInitializer {
     public static class PredefinedTestData {
         private final User user;
         private final Wallet wallet;
+        private final Wallet receiverWallet;
         private final SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
         private final String privateKey;
     }
-
 }

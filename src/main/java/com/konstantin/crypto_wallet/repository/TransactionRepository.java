@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    Optional<Transaction> findByTransactionHash(String transactionHash);
+    Optional<Transaction> findByTransactionHashAndType(String transactionHash, TransactionType type);
 
     Boolean existsByWalletIdAndStatus(Long walletId, TransactionStatus status);
 
