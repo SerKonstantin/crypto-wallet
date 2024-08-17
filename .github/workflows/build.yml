@@ -24,6 +24,9 @@ jobs:
         with:
           gradle-version: 8.5
 
+      - name: Change directory to backend
+        run: cd backend
+
       - name: Build and Test
         run: |
           ./gradlew build
