@@ -26,9 +26,10 @@ jobs:
 
       - name: Build and Test
         run: |
-          ./backend/gradlew build
-          ./backend/gradlew checkstyleMain checkstyleTest
-          ./backend/gradlew test
+          cd backend
+          ./gradlew build
+          ./gradlew checkstyleMain checkstyleTest
+          ./gradlew test
         env:
           INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
           TEST_WALLET_PRIVATE_KEY: ${{ secrets.TEST_WALLET_PRIVATE_KEY }}
@@ -43,5 +44,7 @@ jobs:
           JACOCO_SOURCE_PATH: backend/src/main/java
         with:
           debug: true
-          coverageCommand: ./backend/gradlew jacocoTestReport
+          coverageCommand: |
+            cd backend
+            ./gradlew jacocoTestReport
           coverageLocations: ${{github.workspace}}/backend/build/reports/jacoco/test/jacocoTestReport.xml:jacoco
