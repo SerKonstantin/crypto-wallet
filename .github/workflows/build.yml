@@ -24,14 +24,11 @@ jobs:
         with:
           gradle-version: 8.5
 
-      - name: Change directory to backend
-        run: cd backend
-
       - name: Build and Test
         run: |
-          ./gradlew build
-          ./gradlew checkstyleMain checkstyleTest
-          ./gradlew test
+          ./backend/gradlew build
+          ./backend/gradlew checkstyleMain checkstyleTest
+          ./backend/gradlew test
         env:
           INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
           TEST_WALLET_PRIVATE_KEY: ${{ secrets.TEST_WALLET_PRIVATE_KEY }}
@@ -43,8 +40,8 @@ jobs:
         uses: paambaati/codeclimate-action@v5.0.0
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.TEST_REPORTER_ID }}
-          JACOCO_SOURCE_PATH: src/main/java
+          JACOCO_SOURCE_PATH: backend/src/main/java
         with:
           debug: true
-          coverageCommand: ./gradlew jacocoTestReport
-          coverageLocations: ${{github.workspace}}/build/reports/jacoco/test/jacocoTestReport.xml:jacoco
+          coverageCommand: ./backend/gradlew jacocoTestReport
+          coverageLocations: ${{github.workspace}}/backend/build/reports/jacoco/test/jacocoTestReport.xml:jacoco
