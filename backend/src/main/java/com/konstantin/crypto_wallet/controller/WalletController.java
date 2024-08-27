@@ -1,5 +1,6 @@
 package com.konstantin.crypto_wallet.controller;
 
+import com.konstantin.crypto_wallet.dto.transaction.TransactionResponseDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletCreateDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletImportDTO;
@@ -65,5 +66,11 @@ public class WalletController {
     public ResponseEntity<WalletDTO> importWallet(@Valid @RequestBody WalletImportDTO data) {
         var walletDTO = walletService.importWallet(data);
         return new ResponseEntity<>(walletDTO, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/transactions")
+    public ResponseEntity<List<TransactionResponseDTO>> showAllTransactions() {
+        var response = walletService.getAllTransactions();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

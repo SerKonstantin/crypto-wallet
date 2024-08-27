@@ -41,8 +41,8 @@ public class TransactionController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<TransactionResponseDTO>> showTransactionHistory(@PathVariable String slug) {
-        var response = transactionService.getTransactions(slug);
+    public ResponseEntity<List<TransactionResponseDTO>> showTransactionHistoryByWallet(@PathVariable String slug) {
+        var response = transactionService.getTransactionsByWalletSlug(slug);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

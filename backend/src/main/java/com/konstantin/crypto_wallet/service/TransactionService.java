@@ -133,7 +133,7 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
-    public List<TransactionResponseDTO> getTransactions(String walletSlug) {
+    public List<TransactionResponseDTO> getTransactionsByWalletSlug(String walletSlug) {
         var user = userUtils.getCurrentUser();
         var wallet = slugUtils.getWalletByUserAndSlug(user, walletSlug);
 
