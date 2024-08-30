@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './components/pages/Home';
-import Dashboard from './components/pages/Dashboard';
+import Dashboard from './components/dashboard/Dashboard';
 import Wallets from './components/pages/Wallets';
 
 function App() {

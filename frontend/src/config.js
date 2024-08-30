@@ -1,5 +1,14 @@
+const environment = process.env.REACT_APP_ENV || 'development';
+
 const config = {
-    apiBaseUrl: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080'
+    development: {
+        apiBaseUrl: 'http://localhost:8080',
+        infuraBaseUrl: 'https://sepolia.infura.io/v3/',
+    },
+    production: {
+        apiBaseUrl: process.env.REACT_APP_API_BASE_URL,
+        infuraBaseUrl: 'https://sepolia.infura.io/v3/', // TODO Change to mainnet endpoint for real use
+    }
 }
 
-export default config;
+export default config[environment];

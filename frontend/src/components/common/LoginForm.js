@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import config from '../../../src/config';
 
 const apiClient = axios.create({
-    baseURL: config.apiBaseUrl,
-  });
+  baseURL: config.apiBaseUrl,
+});
 
 function LoginForm() {
   const [email, setEmail] = useState('');
@@ -19,7 +19,7 @@ function LoginForm() {
 
     try {
       const response = await apiClient.post('/api/login', { username: email, password });
-      sessionStorage.setItem('authToken', response.data.token);
+      sessionStorage.setItem('cryptoWalletAuthToken', response.data);
       navigate('/dashboard');
     } catch (err) {
       // TODO check error messages
