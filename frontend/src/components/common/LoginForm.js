@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import config from '../../../src/config';
+import config from '../../config/config';
 
 const apiClient = axios.create({
   baseURL: config.apiBaseUrl,
