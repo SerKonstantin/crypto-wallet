@@ -1,6 +1,8 @@
 package com.konstantin.crypto_wallet.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.openapitools.jackson.nullable.JsonNullableModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +14,10 @@ public class JacksonConfig {
     Jackson2ObjectMapperBuilder objectMapperBuilder() {
         var builder = new Jackson2ObjectMapperBuilder();
         builder.serializationInclusion(JsonInclude.Include.NON_NULL)
-                .modulesToInstall(new JsonNullableModule());
+                .modulesToInstall(new JsonNullableModule())
+                .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .modulesToInstall(new JavaTimeModule())
+                .simpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         return builder;
     }
 }
