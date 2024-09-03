@@ -14,9 +14,11 @@ public class JacksonConfig {
     Jackson2ObjectMapperBuilder objectMapperBuilder() {
         var builder = new Jackson2ObjectMapperBuilder();
         builder.serializationInclusion(JsonInclude.Include.NON_NULL)
-                .modulesToInstall(new JsonNullableModule())
                 .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .modulesToInstall(new JavaTimeModule())
+                .modulesToInstall(
+                        new JsonNullableModule(),
+                        new JavaTimeModule()
+                )
                 .simpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         return builder;
     }
