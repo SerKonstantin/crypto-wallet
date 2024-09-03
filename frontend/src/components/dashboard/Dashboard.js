@@ -1,18 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import TotalBalance from './TotalBalance';
 import WalletList from './WalletList';
 import useFetchWallets from './useFetchWallets';
-import TotalBalance from './TotalBalance';
-// import RecentTransactions from './RecentTransactions';
+import RecentTransactions from './RecentTransactions';
+import useFetchTransactions from './useFetchTransactions';
 
 function Dashboard() {
   const { wallets, error: walletsError } = useFetchWallets();
+  const { transactions, error: transactionsError } = useFetchTransactions();
 
   return (
     <div>
-      {walletsError && <p style={{ color: 'red' }}>{walletsError}</p>}
+      {walletsError ||
+        (transactionsError && (
+          <p style={{ color: 'red' }}>{walletsError || transactionsError}</p>
+        ))}
       <TotalBalance wallets={wallets} />
       <WalletList wallets={wallets} />
-      {/* <RecentTransactions wallets={wallets} /> */}
+      <RecentTransactions transactions={transactions} />
     </div>
   );
 }
