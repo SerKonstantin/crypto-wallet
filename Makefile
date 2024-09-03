@@ -1,4 +1,7 @@
-.PHONY: build test lint report
+.PHONY: build test lint report run
+
+run:
+	cd backend && ./gradlew bootRun
 
 build:
 	cd backend && ./gradlew build
