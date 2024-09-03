@@ -13,23 +13,31 @@ function LoginForm() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async event => {
     event.preventDefault();
-    setError('');  // Clear previous error
+    setError(''); // Clear previous error
 
     try {
-      const response = await apiClient.post('/api/login', { username: email, password });
+      const response = await apiClient.post('/api/login', {
+        username: email,
+        password,
+      });
       sessionStorage.setItem('cryptoWalletAuthToken', response.data);
       navigate('/dashboard');
     } catch (err) {
       // TODO check error messages
       if (err.response) {
         // Server responded with non 2xx status code
-        var message = err.response.status === 401 ? 'Invalid credentials. Please try again.' : 'An error occurred. Please try again later.';
+        var message =
+          err.response.status === 401
+            ? 'Invalid credentials. Please try again.'
+            : 'An error occurred. Please try again later.';
         setError(message);
       } else if (err.request) {
         // The request was made, but no response was received from server
-        setError('Unable to reach the server. Please ensure the backend is running.');
+        setError(
+          'Unable to reach the server. Please ensure the backend is running.'
+        );
       } else {
         // Request wasnt sent
         setError('An unexpected error occurred. Please try again.');
@@ -46,7 +54,7 @@ function LoginForm() {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             required
           />
         </div>
@@ -55,7 +63,7 @@ function LoginForm() {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             required
           />
         </div>

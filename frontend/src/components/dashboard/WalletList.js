@@ -5,11 +5,11 @@ function WalletList({ wallets }) {
     <div>
       <h2>Wallets</h2>
       <ul>
-        {wallets.map((wallet) => (
+        {wallets.map(wallet => (
           <li key={wallet.id}>
             <p>Name: {wallet.name}</p>
             <p>Address: {wallet.address}</p>
-            <p>Balance: {wallet.balance} ETH</p>
+            <p>Balance: {parseFloat(wallet.balance).toFixed(6)} ETH</p>
           </li>
         ))}
       </ul>

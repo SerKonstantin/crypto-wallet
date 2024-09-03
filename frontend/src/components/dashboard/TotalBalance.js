@@ -8,7 +8,7 @@ function TotalBalance({ wallets }) {
   return (
     <div>
       <h2>Total Balance</h2>
-      <p>{totalBalance.toFixed(4)} ETH</p>
+      <p>{totalBalance.toFixed(6)} ETH</p>
     </div>
   );
 }
