@@ -245,6 +245,7 @@ public class TransactionService {
         newTransaction.setType(type);
 
         if (type == TransactionType.RECEIVE) {
+            newTransaction.setAmount(transaction.getValue());
             newTransaction.setFee(BigInteger.ZERO);
             newTransaction.setTotal(transaction.getValue());
         } else {
