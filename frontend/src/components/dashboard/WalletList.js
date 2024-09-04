@@ -4,15 +4,19 @@ function WalletList({ wallets }) {
   return (
     <div>
       <h2>Wallets</h2>
-      <ul>
-        {wallets.map(wallet => (
-          <li key={wallet.id}>
-            <p>Name: {wallet.name}</p>
-            <p>Address: {wallet.address}</p>
-            <p>Balance: {parseFloat(wallet.balance).toFixed(6)} ETH</p>
-          </li>
-        ))}
-      </ul>
+      {wallets.length > 0 ? (
+        <ul>
+          {wallets.map(wallet => (
+            <li key={wallet.id}>
+              <p>Name: {wallet.name}</p>
+              <p>Address: {wallet.address}</p>
+              <p>Balance: {parseFloat(wallet.balance).toFixed(6)} ETH</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>You don't have any wallets yet</p>
+      )}
     </div>
   );
 }

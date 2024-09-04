@@ -8,27 +8,31 @@ function RecentTransactions({ transactions }) {
   return (
     <div>
       <h2>Recent Transactions</h2>
-      <ul>
-        {transactions.map(transaction => {
-          const amount =
-            transaction.amount !== undefined && transaction.amount !== null
-              ? web3.utils.fromWei(transaction.amount.toString(), 'ether')
-              : 'N/A';
+      {transactions.length > 0 ? (
+        <ul>
+          {transactions.map(transaction => {
+            const amount =
+              transaction.amount !== undefined && transaction.amount !== null
+                ? web3.utils.fromWei(transaction.amount.toString(), 'ether')
+                : 'N/A';
 
-          return (
-            <li key={transaction.id}>
-              <p>
-                {transaction.type}: {amount} ETH
-              </p>
-              <p>Status: {transaction.status}</p>
-              <p>
-                Date:{' '}
-                {new Date(Date.parse(transaction.createdAt)).toLocaleString()}
-              </p>
-            </li>
-          );
-        })}
-      </ul>
+            return (
+              <li key={transaction.id}>
+                <p>
+                  {transaction.type}: {amount} ETH
+                </p>
+                <p>Status: {transaction.status}</p>
+                <p>
+                  Date:{' '}
+                  {new Date(Date.parse(transaction.createdAt)).toLocaleString()}
+                </p>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p>You don't have any transactions yet</p>
+      )}
     </div>
   );
 }
