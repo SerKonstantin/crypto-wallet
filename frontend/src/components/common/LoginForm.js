@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import config from '../../config/config';
+import ErrorDisplay from './ErrorDisplay';
 
 const apiClient = axios.create({
   baseURL: config.apiBaseUrl,
@@ -67,7 +68,7 @@ function LoginForm() {
             required
           />
         </div>
-        {error && <p>{error}</p>}
+        <ErrorDisplay errors={error} />
         <button type="submit">Login</button>
       </form>
     </div>
