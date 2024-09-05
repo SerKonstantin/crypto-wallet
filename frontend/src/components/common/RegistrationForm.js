@@ -4,39 +4,36 @@ import { useNavigate, Link } from 'react-router-dom';
 import config from '../../config/config';
 import ErrorDisplay from './ErrorDisplay';
 
-function LoginForm() {
+function RegistrationForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [nickname, setNickname] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async event => {
     event.preventDefault();
-    setError(''); // Clear previous error
+    setError('');
 
     try {
-      const response = await axios.post(`${config.apiBaseUrl}/api/login`, {
-        username: email,
+      await axios.post(`${config.apiBaseUrl}/api/profile`, {
+        email,
         password,
+        nickname,
       });
-      sessionStorage.setItem('cryptoWalletAuthToken', response.data);
-      navigate('/dashboard');
+      navigate('/login');
     } catch (err) {
-      // TODO check error messages
       if (err.response) {
-        // Server responded with non 2xx status code
-        var message =
-          err.response.status === 401
-            ? 'Invalid credentials. Please try again.'
-            : 'An error occurred. Please try again later.';
+        const message =
+          err.response.status === 409
+            ? 'User with the same email or nickname already exists.'
+            : 'An error occurred during registration. Please try again later.';
         setError(message);
       } else if (err.request) {
-        // The request was made, but no response was received from server
         setError(
           'Unable to reach the server. Please ensure the backend is running.'
         );
       } else {
-        // Request wasnt sent
         setError('An unexpected error occurred. Please try again.');
       }
     }
@@ -44,7 +41,7 @@ function LoginForm() {
 
   return (
     <div>
-      <h2>Login</h2>
+      <h2>Register</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Email:</label>
@@ -64,14 +61,23 @@ function LoginForm() {
             required
           />
         </div>
+        <div>
+          <label>Nickname:</label>
+          <input
+            type="text"
+            value={nickname}
+            onChange={e => setNickname(e.target.value)}
+            required
+          />
+        </div>
         <ErrorDisplay errors={error} />
-        <button type="submit">Login</button>
+        <button type="submit">Register</button>
       </form>
       <p>
-        Don't have an account? <Link to="/register">Register here</Link>
+        Already have an account? <Link to="/login">Login here</Link>
       </p>
     </div>
   );
 }
 
-export default LoginForm;
+export default RegistrationForm;
