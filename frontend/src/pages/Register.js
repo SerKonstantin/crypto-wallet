@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import config from '../../config/config';
-import ErrorDisplay from './ErrorDisplay';
+import axiosClient from '../utils/axiosClient';
+import ErrorDisplay from '../components/ErrorDisplay';
 
-function RegistrationForm() {
+function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState([]);
   const navigate = useNavigate();
 
   const handleSubmit = async event => {
     event.preventDefault();
-    setError('');
+    setErrors([]);
 
     try {
-      await axios.post(`${config.apiBaseUrl}/api/profile`, {
+      await axiosClient.post(`/profile`, {
         email,
         password,
         nickname,
@@ -28,13 +27,13 @@ function RegistrationForm() {
           err.response.status === 409
             ? 'User with the same email or nickname already exists.'
             : 'An error occurred during registration. Please try again later.';
-        setError(message);
+        setErrors([message]);
       } else if (err.request) {
-        setError(
-          'Unable to reach the server. Please ensure the backend is running.'
-        );
+        setErrors([
+          'Unable to reach the server. Please ensure the backend is running.',
+        ]);
       } else {
-        setError('An unexpected error occurred. Please try again.');
+        setErrors(['An unexpected error occurred. Please try again.']);
       }
     }
   };
@@ -70,7 +69,7 @@ function RegistrationForm() {
             required
           />
         </div>
-        <ErrorDisplay errors={error} />
+        <ErrorDisplay errors={errors} />
         <button type="submit">Register</button>
       </form>
       <p>
@@ -80,4 +79,4 @@ function RegistrationForm() {
   );
 }
 
-export default RegistrationForm;
+export default Register;

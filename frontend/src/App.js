@@ -1,9 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Home from './components/pages/Home';
-import Dashboard from './components/dashboard/Dashboard';
-import Wallets from './components/pages/Wallets';
-import RegistrationForm from './components/common/RegistrationForm';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './dashboard/Dashboard';
+import Wallets from './pages/Wallets';
 
 function App() {
   return (
@@ -23,7 +24,8 @@ function App() {
       </nav>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/register" element={<RegistrationForm />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/wallets" element={<Wallets />} />
       </Routes>

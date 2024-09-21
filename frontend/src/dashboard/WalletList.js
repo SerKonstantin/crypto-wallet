@@ -10,7 +10,12 @@ function WalletList({ wallets }) {
             <li key={wallet.id}>
               <p>Name: {wallet.name}</p>
               <p>Address: {wallet.address}</p>
-              <p>Balance: {parseFloat(wallet.balance).toFixed(6)} ETH</p>
+              <p>
+                Balance:{' '}
+                {wallet.balance !== undefined
+                  ? `${parseFloat(wallet.balance).toFixed(6)} ETH`
+                  : 'Fetching...'}
+              </p>
             </li>
           ))}
         </ul>

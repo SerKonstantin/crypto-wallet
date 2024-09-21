@@ -1,21 +1,29 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import config from '../../config/config';
-import ErrorDisplay from './ErrorDisplay';
+import { useLocation } from 'react-router-dom';
+import axiosClient from '../utils/axiosClient';
+import ErrorDisplay from '../components/ErrorDisplay';
 
-function LoginForm() {
+function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState([]);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('noAuth')) {
+      setErrors(['Please log in to access wallets.']);
+    }
+  }, [location]);
 
   const handleSubmit = async event => {
     event.preventDefault();
-    setError(''); // Clear previous error
+    setErrors([]); // Clear previous error
 
     try {
-      const response = await axios.post(`${config.apiBaseUrl}/api/login`, {
+      const response = await axiosClient.post(`/login`, {
         username: email,
         password,
       });
@@ -29,15 +37,15 @@ function LoginForm() {
           err.response.status === 401
             ? 'Invalid credentials. Please try again.'
             : 'An error occurred. Please try again later.';
-        setError(message);
+        setErrors([message]);
       } else if (err.request) {
         // The request was made, but no response was received from server
-        setError(
-          'Unable to reach the server. Please ensure the backend is running.'
-        );
+        setErrors([
+          'Unable to reach the server. Please ensure the backend is running.',
+        ]);
       } else {
         // Request wasnt sent
-        setError('An unexpected error occurred. Please try again.');
+        setErrors(['An unexpected error occurred. Please try again.']);
       }
     }
   };
@@ -64,7 +72,7 @@ function LoginForm() {
             required
           />
         </div>
-        <ErrorDisplay errors={error} />
+        <ErrorDisplay errors={errors} />
         <button type="submit">Login</button>
       </form>
       <p>
@@ -74,4 +82,4 @@ function LoginForm() {
   );
 }
 
-export default LoginForm;
+export default Login;

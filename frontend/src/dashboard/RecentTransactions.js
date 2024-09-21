@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Web3 from 'web3';
-import getWeb3Url from '../../config/web3Config';
+import getWeb3Url from '../config/web3Config';
 
 function RecentTransactions({ transactions }) {
   const web3 = new Web3(new Web3.providers.HttpProvider(getWeb3Url()));
