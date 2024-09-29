@@ -12,6 +12,7 @@ const NavList = styled.ul`
   list-style: none;
   justify-content: center;
   margin: 0;
+  padding: 0;
 `;
 
 const NavItem = styled.li`
