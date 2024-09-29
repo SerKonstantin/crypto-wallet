@@ -5,7 +5,7 @@ const Button = styled.button`
   color: ${({ theme }) => theme.buttonText};
   padding: 15px 30px;
   margin: 10px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 1.2rem;
   font-weight: 500;
   cursor: pointer;
@@ -13,6 +13,14 @@ const Button = styled.button`
   text-decoration: none;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+
+  // Auto adjust width for form submit buttons
+  ${({ type }) =>
+    type === 'submit' &&
+    `
+    width: 100%;
+    margin: 20px 0 0 0;
+  `}
 
   &:hover {
     background-color: ${({ theme }) => theme.buttonBgHover || theme.buttonBg};

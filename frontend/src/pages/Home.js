@@ -2,40 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../components/Button';
-
-const Container = styled.div`
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  text-align: center;
-`;
-
-const Title = styled.h1`
-  font-size: 3rem;
-  margin-bottom: 30px;
-  color: ${({ theme }) => theme.text};
-`;
-
-const Description = styled.p`
-  font-size: 1.2rem;
-  line-height: 1.6;
-  margin-bottom: 25px;
-  color: ${({ theme }) => theme.text};
-`;
-
-const ButtonGroup = styled.div`
-  margin-top: 30px;
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-`;
-
-const SectionHeading = styled.h3`
-  margin-top: 50px;
-  font-size: 2rem;
-  color: ${({ theme }) => theme.text};
-  text-align: center;
-`;
+import {
+  Container,
+  Title,
+  Description,
+  ButtonGroup,
+  SectionHeading,
+} from '../styles/CommonStyles';
 
 const ListContainer = styled.div`
   text-align: left;

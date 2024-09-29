@@ -3,6 +3,17 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import axiosClient from '../utils/axiosClient';
 import ErrorDisplay from '../components/ErrorDisplay';
+import {
+  Container,
+  SectionHeading,
+  Form,
+  FormField,
+  Input,
+  Label,
+  TextLink,
+  Description,
+} from '../styles/CommonStyles';
+import Button from '../components/Button';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -51,34 +62,36 @@ function Login() {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
-          <input
+    <Container>
+      <SectionHeading>Please, sign in to continue</SectionHeading>
+
+      <Form onSubmit={handleSubmit}>
+        <FormField>
+          <Label>Email</Label>
+          <Input
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
           />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
+        </FormField>
+        <FormField>
+          <Label>Password</Label>
+          <Input
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
           />
-        </div>
+        </FormField>
         <ErrorDisplay errors={errors} />
-        <button type="submit">Login</button>
-      </form>
-      <p>
-        Don't have an account? <Link to="/register">Register here</Link>
-      </p>
-    </div>
+        <Button type="submit">Sign In</Button>
+      </Form>
+
+      <Description>
+        Don't have an account? <TextLink to="/register">Register here</TextLink>
+      </Description>
+    </Container>
   );
 }
 
