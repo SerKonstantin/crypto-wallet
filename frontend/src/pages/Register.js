@@ -2,6 +2,17 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axiosClient from '../utils/axiosClient';
 import ErrorDisplay from '../components/ErrorDisplay';
+import {
+  Container,
+  SectionHeading,
+  Form,
+  FormField,
+  Input,
+  Label,
+  TextLink,
+  Description,
+} from '../styles/CommonStyles';
+import Button from '../components/Button';
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -39,43 +50,43 @@ function Register() {
   };
 
   return (
-    <div>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
-          <input
+    <Container>
+      <SectionHeading>Create your account</SectionHeading>
+      <Form onSubmit={handleSubmit}>
+        <FormField>
+          <Label>Email</Label>
+          <Input
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
           />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
+        </FormField>
+        <FormField>
+          <Label>Password</Label>
+          <Input
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
           />
-        </div>
-        <div>
-          <label>Nickname:</label>
-          <input
+        </FormField>
+        <FormField>
+          <Label>Nickname</Label>
+          <Input
             type="text"
             value={nickname}
             onChange={e => setNickname(e.target.value)}
             required
           />
-        </div>
+        </FormField>
         <ErrorDisplay errors={errors} />
-        <button type="submit">Register</button>
-      </form>
-      <p>
-        Already have an account? <Link to="/login">Login here</Link>
-      </p>
-    </div>
+        <Button type="submit">Register</Button>
+      </Form>
+      <Description>
+        Already have an account? <TextLink to="/login">Login here</TextLink>
+      </Description>
+    </Container>
   );
 }
 
