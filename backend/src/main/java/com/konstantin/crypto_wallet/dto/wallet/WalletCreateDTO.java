@@ -14,6 +14,7 @@ public class WalletCreateDTO {
     private String address;
 
     @NotBlank
-    @Size(min = Constants.MIN_WALLET_NAME_LENGTH)
+    @Size(min = Constants.MIN_WALLET_NAME_LENGTH, max = Constants.MAX_UNIFIED_LENGTH,
+            message = "Wallet name must be at least " + Constants.MIN_WALLET_NAME_LENGTH + " characters long.")
     private String name;
 }

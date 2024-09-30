@@ -13,17 +13,21 @@ import lombok.Setter;
 public class UserRegistrationDTO {
 
     @NotEmpty
-    @Size(min = Constants.MIN_NICKNAME_LENGTH)
+    @Size(min = Constants.MIN_NICKNAME_LENGTH, max = Constants.MAX_UNIFIED_LENGTH,
+            message = "Nickname must be at least " + Constants.MIN_NICKNAME_LENGTH + " characters long.")
     @Pattern(regexp = "^[a-zA-Z0-9._-]+$",
-            message = "User name must contain only letters, numbers, underscores (_), hyphens (-), and periods (.)")
+            message = "Nickname can contain only letters, numbers, underscores (_), hyphens (-), and periods (.)")
     private String nickname;
 
     @NotEmpty
-    @Size(min = Constants.MIN_PASSWORD_LENGTH)
+    @Size(min = Constants.MIN_PASSWORD_LENGTH, max = Constants.MAX_UNIFIED_LENGTH,
+            message = "Password must be at least " + Constants.MIN_PASSWORD_LENGTH + " characters long.")
     private String password;
 
     @Email
     @NotEmpty
+    @Size(min = Constants.MIN_EMAIL_LENGTH, max = Constants.MAX_UNIFIED_LENGTH,
+            message = "Email must be at least " + Constants.MIN_EMAIL_LENGTH + " characters long.")
     private String email;
 
 }
