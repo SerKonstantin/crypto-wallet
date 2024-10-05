@@ -28,7 +28,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<ApiErrorResponse> handleResourceAlreadyExistsException(ResourceAlreadyExistsException ex) {
-        var response = new ApiErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
+        Map<String, String> errors = new HashMap<>();
+        errors.put(ex.getResourceName(), ex.getMessage());
+
+        var response = new ApiErrorResponse(HttpStatus.CONFLICT.value(), "Resource already exists", errors);
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 

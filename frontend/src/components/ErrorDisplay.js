@@ -13,7 +13,9 @@ function ErrorDisplay({ errors }) {
   return (
     <div style={{ color: 'red' }}>
       {errorList.map((error, index) => (
-        <p key={index}>{error}</p>
+        <p key={index} style={{ margin: '10px' }}>
+          {error}
+        </p>
       ))}
     </div>
   );

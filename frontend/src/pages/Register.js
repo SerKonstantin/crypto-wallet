@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axiosClient from '../utils/axiosClient';
 import ErrorDisplay from '../components/ErrorDisplay';
 import {
@@ -18,12 +18,12 @@ function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   const handleSubmit = async event => {
     event.preventDefault();
-    setErrors([]);
+    setErrors({});
 
     try {
       await axiosClient.post(`/profile`, {
@@ -33,18 +33,18 @@ function Register() {
       });
       navigate('/login');
     } catch (err) {
-      if (err.response) {
-        const message =
-          err.response.status === 409
-            ? 'User with the same email or nickname already exists.'
-            : 'An error occurred during registration. Please try again later.';
-        setErrors([message]);
+      if (err.response && err.response.data && err.response.data.errors) {
+        setErrors(err.response.data.errors);
+      } else if (err.response) {
+        setErrors({
+          form: 'An error occurred during registration. Please try again later.',
+        });
       } else if (err.request) {
-        setErrors([
-          'Unable to reach the server. Please ensure the backend is running.',
-        ]);
+        setErrors({
+          form: 'Unable to reach the server. Please ensure the backend is running.',
+        });
       } else {
-        setErrors(['An unexpected error occurred. Please try again.']);
+        setErrors({ form: 'An unexpected error occurred. Please try again.' });
       }
     }
   };
@@ -61,6 +61,7 @@ function Register() {
             onChange={e => setEmail(e.target.value)}
             required
           />
+          {errors.email && <ErrorDisplay errors={errors.email} />}
         </FormField>
         <FormField>
           <Label>Password</Label>
@@ -70,6 +71,7 @@ function Register() {
             onChange={e => setPassword(e.target.value)}
             required
           />
+          {errors.password && <ErrorDisplay errors={errors.password} />}
         </FormField>
         <FormField>
           <Label>Nickname</Label>
@@ -79,8 +81,9 @@ function Register() {
             onChange={e => setNickname(e.target.value)}
             required
           />
+          {errors.nickname && <ErrorDisplay errors={errors.nickname} />}
         </FormField>
-        <ErrorDisplay errors={errors} />
+        {errors.form && <ErrorDisplay errors={errors.form} />}
         <Button type="submit">Register</Button>
       </Form>
       <Description>

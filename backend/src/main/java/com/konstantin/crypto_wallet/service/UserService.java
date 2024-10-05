@@ -31,12 +31,14 @@ public class UserService {
     public UserDTO register(UserRegistrationDTO data) {
         var user = userMapper.map(data);
         userUtils.normalize(user);
+
         if (userRepository.findByNicknameIgnoreCase(user.getNickname()).isPresent()) {
-            throw new ResourceAlreadyExistsException("User with nickname " + user.getNickname() + " already exists");
+            throw new ResourceAlreadyExistsException("nickname");
         }
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new ResourceAlreadyExistsException("User with email " + user.getEmail() + " already exists");
+            throw new ResourceAlreadyExistsException("email");
         }
+
         user.setPassword(passwordEncoder.encode(data.getPassword()));
         userRepository.save(user);
         return userMapper.map(user);
