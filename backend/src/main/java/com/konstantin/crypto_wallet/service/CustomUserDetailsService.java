@@ -1,9 +1,9 @@
 package com.konstantin.crypto_wallet.service;
 
-import com.konstantin.crypto_wallet.exception.ResourceNotFoundException;
 import com.konstantin.crypto_wallet.model.User;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -54,6 +54,6 @@ public class CustomUserDetailsService implements UserDetailsManager {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
     }
 }

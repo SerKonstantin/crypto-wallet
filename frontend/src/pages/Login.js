@@ -41,21 +41,13 @@ function Login() {
       sessionStorage.setItem('cryptoWalletAuthToken', response.data);
       navigate('/dashboard');
     } catch (err) {
-      // TODO check error messages
       if (err.response) {
-        // Server responded with non 2xx status code
-        var message =
-          err.response.status === 401
-            ? 'Invalid credentials. Please try again.'
-            : 'An error occurred. Please try again later.';
-        setErrors([message]);
+        setErrors(['Invalid email or password. Please try again.']);
       } else if (err.request) {
-        // The request was made, but no response was received from server
         setErrors([
           'Unable to reach the server. Please ensure the backend is running.',
         ]);
       } else {
-        // Request wasnt sent
         setErrors(['An unexpected error occurred. Please try again.']);
       }
     }
