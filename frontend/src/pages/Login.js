@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axiosClient from '../utils/axiosClient';
 import ErrorDisplay from '../components/ErrorDisplay';
+import FlashMessage from '../components/FlashMessage';
 import {
   Container,
   SectionHeading,
@@ -19,26 +19,7 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState([]);
-  const [flashMessage, setFlashMessage] = useState({});
   const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    if (searchParams.get('noAuth')) {
-      setErrors(['Please log in to access wallets.']);
-    }
-  }, [location]);
-
-  useEffect(() => {
-    const message = sessionStorage.getItem('flashMessage');
-    const type = sessionStorage.getItem('flashType');
-    if (message) {
-      setFlashMessage({ message, type });
-      sessionStorage.removeItem('flashMessage');
-      sessionStorage.removeItem('flashType');
-    }
-  }, []);
 
   const handleSubmit = async event => {
     event.preventDefault();
@@ -66,16 +47,7 @@ function Login() {
 
   return (
     <Container>
-      {flashMessage && (
-        <div
-          style={{
-            color: flashMessage.type === 'success' ? 'green' : 'red',
-            marginBottom: '20px',
-          }}
-        >
-          {flashMessage.message}
-        </div>
-      )}
+      <FlashMessage />
 
       <SectionHeading>Please, sign in to continue</SectionHeading>
 
