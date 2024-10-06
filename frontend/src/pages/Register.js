@@ -31,6 +31,11 @@ function Register() {
         password,
         nickname,
       });
+      sessionStorage.setItem(
+        'flashMessage',
+        'Registration successful! Please log in.'
+      );
+      sessionStorage.setItem('flashType', 'success');
       navigate('/login');
     } catch (err) {
       if (err.response && err.response.data && err.response.data.errors) {

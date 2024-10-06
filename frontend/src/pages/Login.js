@@ -19,6 +19,7 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState([]);
+  const [flashMessage, setFlashMessage] = useState({});
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,6 +29,16 @@ function Login() {
       setErrors(['Please log in to access wallets.']);
     }
   }, [location]);
+
+  useEffect(() => {
+    const message = sessionStorage.getItem('flashMessage');
+    const type = sessionStorage.getItem('flashType');
+    if (message) {
+      setFlashMessage({ message, type });
+      sessionStorage.removeItem('flashMessage');
+      sessionStorage.removeItem('flashType');
+    }
+  }, []);
 
   const handleSubmit = async event => {
     event.preventDefault();
@@ -55,6 +66,17 @@ function Login() {
 
   return (
     <Container>
+      {flashMessage && (
+        <div
+          style={{
+            color: flashMessage.type === 'success' ? 'green' : 'red',
+            marginBottom: '20px',
+          }}
+        >
+          {flashMessage.message}
+        </div>
+      )}
+
       <SectionHeading>Please, sign in to continue</SectionHeading>
 
       <Form onSubmit={handleSubmit}>
