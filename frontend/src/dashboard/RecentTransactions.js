@@ -1,6 +1,11 @@
 import React from 'react';
 import Web3 from 'web3';
 import getWeb3Url from '../config/web3Config';
+import {
+  TransactionCard,
+  TransactionInfoRow,
+  Description,
+} from '../styles/CommonStyles';
 
 function RecentTransactions({ transactions }) {
   const web3 = new Web3(new Web3.providers.HttpProvider(getWeb3Url()));
@@ -9,7 +14,7 @@ function RecentTransactions({ transactions }) {
     <div>
       <h2>Recent Transactions</h2>
       {transactions.length > 0 ? (
-        <ul>
+        <ul style={{ padding: 0, listStyle: 'none' }}>
           {transactions.map(transaction => {
             const amount =
               transaction.amount !== undefined && transaction.amount !== null
@@ -17,16 +22,18 @@ function RecentTransactions({ transactions }) {
                 : 'N/A';
 
             return (
-              <li key={transaction.id}>
-                <p>
-                  {transaction.type}: {amount} ETH
-                </p>
-                <p>Status: {transaction.status}</p>
-                <p>
-                  Date:{' '}
-                  {new Date(Date.parse(transaction.createdAt)).toLocaleString()}
-                </p>
-              </li>
+              <TransactionCard key={transaction.id}>
+                <TransactionInfoRow>
+                  <span>
+                    <strong>{transaction.type}</strong>
+                  </span>
+                  <span>{amount} ETH</span>
+                  <span>{transaction.status}</span>
+                  <span>
+                    {new Date(transaction.createdAt).toLocaleString()}
+                  </span>
+                </TransactionInfoRow>
+              </TransactionCard>
             );
           })}
         </ul>

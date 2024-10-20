@@ -6,18 +6,19 @@ import withApiData from '../hoc/withApiData';
 import axiosClient from '../utils/axiosClient';
 import useFetchWalletBalances from './useFetchWalletBalances';
 import ErrorDisplay from '../components/ErrorDisplay';
+import { Container } from '../styles/CommonStyles';
 
 function Dashboard({ data }) {
   const [wallets, transactions] = data;
   const { walletsWithBalances, fetchError } = useFetchWalletBalances(wallets);
 
   return (
-    <div>
+    <Container>
       {fetchError && <ErrorDisplay errors={[fetchError]} />}
       <TotalBalance wallets={walletsWithBalances || []} />
       <WalletList wallets={walletsWithBalances || []} />
       <RecentTransactions transactions={transactions || []} />
-    </div>
+    </Container>
   );
 }
 
