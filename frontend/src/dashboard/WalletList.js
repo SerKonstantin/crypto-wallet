@@ -61,7 +61,7 @@ function WalletList({ wallets }) {
     return (
       <Description>
         You don't have any wallets yet.{' '}
-        <TextLink to="/wallets">Create your first wallet</TextLink>
+        <TextLink to="/create-wallet">Create your first wallet</TextLink>
       </Description>
     );
   }
@@ -92,22 +92,16 @@ function WalletList({ wallets }) {
                   : 'Fetching...'}
               </span>
             </WalletInfoRow>
-            {/* <WalletInfoRow> */}
             <WalletAddress title={wallet.address}>
               {wallet.address.slice(0, 6)}...{wallet.address.slice(-6)}
             </WalletAddress>
-            {/* </WalletInfoRow> */}
           </WalletCard>
         ))}
 
         {/* Empty card for creating a wallet if user has 1 wallet */}
         {wallets.length < 2 && (
-          <WalletCard onClick={() => navigate('/wallets')}>
-            <WalletInfoRow>
-              <strong style={{ fontSize: '2rem', textAlign: 'center' }}>
-                +
-              </strong>
-            </WalletInfoRow>
+          <WalletCard onClick={() => navigate('/create-wallet')}>
+            <strong style={{ fontSize: '2rem', textAlign: 'center' }}>+</strong>
             <WalletAddress style={{ textAlign: 'center' }}>
               Add new wallet
             </WalletAddress>
