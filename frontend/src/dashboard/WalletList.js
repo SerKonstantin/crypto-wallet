@@ -67,7 +67,7 @@ function WalletList({ wallets }) {
   }
 
   return (
-    <WalletListContainer>
+    <WalletListContainer centered={wallets.length < 3}>
       {showScrollButtons && (
         <ScrollButton
           direction="left"
@@ -100,8 +100,8 @@ function WalletList({ wallets }) {
           </WalletCard>
         ))}
 
-        {/* Empty card for creating a wallet if user has 1 or 2 wallets */}
-        {wallets.length < 3 && (
+        {/* Empty card for creating a wallet if user has 1 wallet */}
+        {wallets.length < 2 && (
           <WalletCard onClick={() => navigate('/wallets')}>
             <WalletInfoRow>
               <strong style={{ fontSize: '2rem', textAlign: 'center' }}>

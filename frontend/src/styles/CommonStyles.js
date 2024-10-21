@@ -103,6 +103,7 @@ export const WalletListContainer = styled.div`
 
   ul {
     display: flex;
+    justify-content: ${({ centered }) => (centered ? 'center' : 'flex-start')};
     gap: 15px;
     overflow-x: auto;
     padding: 0;
