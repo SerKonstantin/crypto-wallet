@@ -149,15 +149,10 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
-    public TransactionResponseDTO getTransaction(String walletSlug, Long transactionId) {
+    public TransactionResponseDTO getTransaction(Long transactionId) {
         var user = userUtils.getCurrentUser();
-        var wallet = slugUtils.getWalletByUserAndSlug(user, walletSlug);
-
-        var transaction = transactionRepository.findById(transactionId)
+        var transaction = transactionRepository.findByUserIdAndTransactionId(user.getId(), transactionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
-        if (!wallet.getTransactions().contains(transaction)) {
-            throw new ResourceNotFoundException("Transaction not found for wallet " + wallet.getName());
-        }
 
         return transactionMapper.map(transaction);
     }

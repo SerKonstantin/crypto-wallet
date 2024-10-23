@@ -21,8 +21,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findByWalletIdOrderByCreatedAtDesc(Long walletId);
 
+    // Global transaction history for current user
     @Query("SELECT t FROM Transaction t WHERE t.wallet.user.id = :userId ORDER BY t.createdAt DESC")
     List<Transaction> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    // Find specific transaction and check if user is permitted to view it
+    @Query("SELECT t FROM Transaction t JOIN t.wallet w WHERE t.id = :transactionId AND w.user.id = :userId")
+    Optional<Transaction> findByUserIdAndTransactionId(Long userId, Long transactionId);
 
     Boolean existsByTransactionHashAndType(String transactionHash, TransactionType type);
 }

@@ -19,13 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/wallets/{slug}/transactions")
+@RequestMapping("/api")
 public class TransactionController {
 
     @Autowired
     private TransactionService transactionService;
 
-    @PostMapping("")
+    @PostMapping("/wallets/{slug}/transactions")
     public ResponseEntity<TransactionResponseDTO> sendTransaction(
             @PathVariable String slug,
             @Valid @RequestBody TransactionRequestDTO requestDTO) throws Exception {
@@ -40,18 +40,18 @@ public class TransactionController {
         }
     }
 
-    @GetMapping("")
+    @GetMapping("/wallets/{slug}/transactions")
     public ResponseEntity<List<TransactionResponseDTO>> showTransactionHistoryByWallet(@PathVariable String slug) {
         var response = transactionService.getTransactionsByWalletSlug(slug);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/{transactionId}")
-    public ResponseEntity<TransactionResponseDTO> showTransactionDetails(
-            @PathVariable String slug,
-            @PathVariable Long transactionId) {
-        var response = transactionService.getTransaction(slug, transactionId);
+    @GetMapping("/transactions/{transactionId}")
+    public ResponseEntity<TransactionResponseDTO> showTransactionDetails(@PathVariable Long transactionId) {
+        var response = transactionService.getTransaction(transactionId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    // TODO Show all transactions (move from WalletController)
 
 }
