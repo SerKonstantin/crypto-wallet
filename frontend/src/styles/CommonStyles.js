@@ -121,12 +121,6 @@ export const WalletListContainer = styled.div`
     padding: 10px 0;
     scrollbar-width: none;
   }
-
-  // @media (max-width: 800px) {
-  //   ul {
-  //     flex-wrap: wrap;
-  //   }
-  }
 `;
 
 export const WalletCard = styled.li`
@@ -152,10 +146,6 @@ export const WalletCard = styled.li`
     transform: translateY(-3px);
     transition: all 0.3s ease;
   }
-
-  // @media (max-width: 800px) {
-  //   flex: 0 0 calc((100% - 30px) / 2);
-  // }
 `;
 
 export const WalletInfoRow = styled.div`
@@ -205,12 +195,4 @@ export const ScrollButton = styled.button`
     opacity: 0.4;
     cursor: default;
   }
-
-  // @media (max-width: 800px) {
-  //   display: none;
-  // }
 `;
-
-export const TransactionCard = styled.li``;
-
-export const TransactionInfoRow = styled.p``;
