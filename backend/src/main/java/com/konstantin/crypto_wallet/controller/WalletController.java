@@ -67,10 +67,4 @@ public class WalletController {
         var walletDTO = walletService.importWallet(data);
         return new ResponseEntity<>(walletDTO, HttpStatus.CREATED);
     }
-
-    @GetMapping("/transactions")
-    public ResponseEntity<List<TransactionResponseDTO>> showAllTransactions() {
-        var response = walletService.getAllTransactions();
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
 }

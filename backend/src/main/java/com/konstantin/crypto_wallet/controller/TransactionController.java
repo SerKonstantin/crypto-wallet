@@ -40,6 +40,12 @@ public class TransactionController {
         }
     }
 
+    @GetMapping("/transactions")
+    public ResponseEntity<List<TransactionResponseDTO>> showAllUserTransactions() {
+        var response = transactionService.getAllUserTransactions();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("/wallets/{slug}/transactions")
     public ResponseEntity<List<TransactionResponseDTO>> showTransactionHistoryByWallet(@PathVariable String slug) {
         var response = transactionService.getTransactionsByWalletSlug(slug);
@@ -51,7 +57,4 @@ public class TransactionController {
         var response = transactionService.getTransaction(transactionId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    // TODO Show all transactions (move from WalletController)
-
 }

@@ -138,18 +138,4 @@ public class WalletService {
 
         return walletMapper.map(wallet);
     }
-
-    @Transactional(readOnly = true)
-    public List<TransactionResponseDTO> getAllTransactions() {
-        var user = userUtils.getCurrentUser();
-        var transactions = transactionRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
-
-        if (transactions == null || transactions.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        return transactions.stream()
-                .map(transactionMapper::map)
-                .collect(Collectors.toList());
-    }
 }
