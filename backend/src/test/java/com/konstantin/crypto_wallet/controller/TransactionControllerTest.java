@@ -86,10 +86,15 @@ public class TransactionControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$[0].transactionHash").exists());
 
+        // Check global transaction history for user
+        mockMvc.perform(get("/api/transactions")
+                        .with(testData.getToken()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].transactionHash").exists());
+
         // Check individual transaction for the sender wallet
-        var showTransactionRequest = get(
-                "/api/wallets/{slug}/transactions/{transactiondId}",
-                testData.getWallet().getSlug(), transactionId)
+        var showTransactionRequest = get("/api/transactions/{transactionId}", transactionId)
                 .with(testData.getToken());
         mockMvc.perform(showTransactionRequest)
                 .andExpect(status().isOk())
@@ -131,9 +136,7 @@ public class TransactionControllerTest {
         }
 
         // Check individual transaction for the receiver wallet
-        var showReceivedTransactionRequest = get(
-                "/api/wallets/{slug}/transactions/{transactiondId}",
-                testData.getReceiverWallet().getSlug(), receivedTransactionId)
+        var showReceivedTransactionRequest = get("/api/transactions/{transactionId}", receivedTransactionId)
                 .with(testData.getToken());
         mockMvc.perform(showReceivedTransactionRequest)
                 .andExpect(status().isOk())
