@@ -36,6 +36,14 @@ export const Description = styled.p`
   color: ${({ theme }) => theme.text};
 `;
 
+export const SmallText = styled.p`
+  font-size: 0.9rem;
+  line-height: 1.2;
+  margin-block-start: 10px;
+  margin-block-end: 25px;
+  color: ${({ theme }) => theme.text};
+`;
+
 export const Form = styled.form`
   max-width: ${({ maxWidth }) => maxWidth || '360px'};
   min-width: ${({ minWidth }) => minWidth || '200px'};
@@ -94,7 +102,6 @@ export const TextLink = styled(Link)`
 export const WalletListContainer = styled.div`
   display: flex;
   position: relative;
-  margin: 20px 0;
   overflow: hidden;
   max-width: 960px;
   width: 100%;

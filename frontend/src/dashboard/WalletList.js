@@ -6,6 +6,7 @@ import {
   WalletListContainer,
   ScrollButton,
   Description,
+  SmallText,
   WalletAddress,
   TextLink,
 } from '../styles/CommonStyles';
@@ -60,65 +61,76 @@ function WalletList({ wallets }) {
   if (wallets.length === 0) {
     return (
       <Description>
-        You don't have any wallets yet.{' '}
         <TextLink to="/create-wallet">Create your first wallet</TextLink>
       </Description>
     );
   }
 
   return (
-    <WalletListContainer centered={wallets.length < 3}>
-      {showScrollButtons && (
-        <ScrollButton
-          direction="left"
-          onClick={() => handleScroll('left')}
-          disabled={isLeftDisabled}
-        >
-          ◀
-        </ScrollButton>
-      )}
-
-      <ul ref={listRef}>
-        {wallets.map(wallet => (
-          <WalletCard
-            key={wallet.id}
-            onClick={() => navigate(`/wallets/${wallet.slug}`)}
+    <div style={{ margin: '40px 0' }}>
+      <WalletListContainer centered={wallets.length < 3}>
+        {showScrollButtons && (
+          <ScrollButton
+            direction="left"
+            onClick={() => handleScroll('left')}
+            disabled={isLeftDisabled}
           >
-            <WalletInfoRow>
-              <strong>{wallet.name}</strong>
-              <span>
-                {wallet.balance !== undefined
-                  ? `${parseFloat(wallet.balance).toFixed(6)} ETH`
-                  : 'Fetching...'}
-              </span>
-            </WalletInfoRow>
-            <WalletAddress title={wallet.address}>
-              {wallet.address.slice(0, 6)}...{wallet.address.slice(-6)}
-            </WalletAddress>
-          </WalletCard>
-        ))}
-
-        {/* Empty card for creating a wallet if user has 1 wallet */}
-        {wallets.length < 2 && (
-          <WalletCard onClick={() => navigate('/create-wallet')}>
-            <strong style={{ fontSize: '2rem', textAlign: 'center' }}>+</strong>
-            <WalletAddress style={{ textAlign: 'center' }}>
-              Add new wallet
-            </WalletAddress>
-          </WalletCard>
+            ◀
+          </ScrollButton>
         )}
-      </ul>
 
-      {showScrollButtons && (
-        <ScrollButton
-          direction="right"
-          onClick={() => handleScroll('right')}
-          disabled={isRightDisabled}
-        >
-          ▶
-        </ScrollButton>
+        <ul ref={listRef}>
+          {wallets.map(wallet => (
+            <WalletCard
+              key={wallet.id}
+              onClick={() => navigate(`/wallets/${wallet.slug}`)}
+            >
+              <WalletInfoRow>
+                <strong>{wallet.name}</strong>
+                <span>
+                  {wallet.balance !== undefined
+                    ? `${parseFloat(wallet.balance).toFixed(6)} ETH`
+                    : 'Fetching...'}
+                </span>
+              </WalletInfoRow>
+              <WalletAddress title={wallet.address}>
+                {wallet.address.slice(0, 6)}...{wallet.address.slice(-6)}
+              </WalletAddress>
+            </WalletCard>
+          ))}
+
+          {/* Empty card for creating a wallet if user has just one wallet */}
+          {wallets.length < 2 && (
+            <WalletCard onClick={() => navigate('/create-wallet')}>
+              <strong style={{ fontSize: '2rem', textAlign: 'center' }}>
+                +
+              </strong>
+              <WalletAddress style={{ textAlign: 'center' }}>
+                Add new wallet
+              </WalletAddress>
+            </WalletCard>
+          )}
+        </ul>
+
+        {showScrollButtons && (
+          <ScrollButton
+            direction="right"
+            onClick={() => handleScroll('right')}
+            disabled={isRightDisabled}
+          >
+            ▶
+          </ScrollButton>
+        )}
+      </WalletListContainer>
+
+      {/* Wallet creation link in case 2 or more wallets */}
+      {wallets.length >= 2 && (
+        <SmallText>
+          Need more wallets?{' '}
+          <TextLink to="/create-wallet">Create a new wallet</TextLink>
+        </SmallText>
       )}
-    </WalletListContainer>
+    </div>
   );
 }
 
