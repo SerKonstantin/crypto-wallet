@@ -1,14 +1,11 @@
 package com.konstantin.crypto_wallet.service;
 
-import com.konstantin.crypto_wallet.dto.transaction.TransactionResponseDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletCreateDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletImportDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletUpdateDTO;
 import com.konstantin.crypto_wallet.exception.ResourceAlreadyExistsException;
-import com.konstantin.crypto_wallet.mapper.TransactionMapper;
 import com.konstantin.crypto_wallet.mapper.WalletMapper;
-import com.konstantin.crypto_wallet.repository.TransactionRepository;
 import com.konstantin.crypto_wallet.repository.UserRepository;
 import com.konstantin.crypto_wallet.repository.WalletRepository;
 import com.konstantin.crypto_wallet.util.SlugUtilsForWallet;
@@ -18,9 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.Credentials;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class WalletService {
@@ -32,13 +27,7 @@ public class WalletService {
     private UserRepository userRepository;
 
     @Autowired
-    private TransactionRepository transactionRepository;
-
-    @Autowired
     private WalletMapper walletMapper;
-
-    @Autowired
-    private TransactionMapper transactionMapper;
 
     @Autowired
     private UserUtils userUtils;

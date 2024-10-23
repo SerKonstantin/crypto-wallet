@@ -1,6 +1,5 @@
 package com.konstantin.crypto_wallet.controller;
 
-import com.konstantin.crypto_wallet.dto.transaction.TransactionResponseDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletCreateDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletDTO;
 import com.konstantin.crypto_wallet.dto.wallet.WalletImportDTO;
