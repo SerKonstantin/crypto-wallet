@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 public class TransactionResponseDTO {
     private Long id;
+    private Long walletId;
     private String fromAddress;
     private String toAddress;
     private TransactionType type;

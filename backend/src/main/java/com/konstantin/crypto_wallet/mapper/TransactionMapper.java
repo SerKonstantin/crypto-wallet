@@ -18,5 +18,6 @@ public abstract class TransactionMapper {
     @Mapping(target = "status", constant = "PENDING")
     public abstract Transaction map(TransactionRequestDTO dto);
 
+    @Mapping(source = "wallet.id", target = "walletId")
     public abstract TransactionResponseDTO map(Transaction model);
 }
