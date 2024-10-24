@@ -1,13 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import CreateWallet from './pages/CreateWallet';
+import ThemeWrapper from './styles/ThemeWrapper';
+import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './dashboard/Dashboard';
 import Wallets from './pages/Wallets';
-import ThemeWrapper from './styles/ThemeWrapper';
-import Navbar from './components/Navbar';
+import CreateWallet from './pages/CreateWallet';
+import WalletDetails from './pages/WalletDetails';
+import TransactionDetails from './pages/TransactionDetails';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/wallets" element={<Wallets />} />
           <Route path="/create-wallet" element={<CreateWallet />} />
+          <Route path="/wallets/:slug" element={<WalletDetails />} />
+          <Route path="/transactions/:id" element={<TransactionDetails />} />
         </Routes>
       </Router>
       {/* TODO Footer */}
