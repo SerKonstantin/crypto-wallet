@@ -48,7 +48,7 @@ function Home() {
 
       <ButtonGroup>
         <Button as={Link} to="/login">
-          Login
+          Sign in
         </Button>
         <Button as={Link} to="/register">
           Register

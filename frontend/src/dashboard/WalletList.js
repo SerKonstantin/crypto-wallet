@@ -1,16 +1,109 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import {
-  WalletCard,
-  WalletInfoRow,
-  WalletListContainer,
-  ScrollButton,
   Description,
   SmallText,
-  WalletAddress,
   TextLink,
   SectionHeading,
 } from '../styles/CommonStyles';
+
+const WalletListContainer = styled.div`
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  max-width: 960px;
+  width: 100%;
+  min-width: 600px;
+  justify-content: center;
+
+  ul {
+    display: flex;
+    justify-content: ${({ centered }) => (centered ? 'center' : 'flex-start')};
+    gap: 15px;
+    overflow-x: auto;
+    padding: 0;
+    list-style: none;
+    scroll-behavior: smooth;
+    width: calc(100% - 120px);
+    margin: 0 auto;
+    padding: 10px 0;
+    scrollbar-width: none;
+  }
+`;
+
+const WalletCard = styled.li`
+  flex: 0 0 calc((100% - 30px) / 3);
+  max-width: calc((100% - 30px) / 3);
+
+  padding: 20px;
+  border: 1px solid ${({ theme }) => theme.buttonBg};
+  border-radius: 10px;
+  background: linear-gradient(
+    135deg,
+    ${({ theme }) => theme.body} 30%,
+    #f9f9f9 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  cursor: pointer;
+
+  &:hover {
+    background: ${({ theme }) => theme.hoverBg};
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const WalletInfoRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+`;
+
+const WalletAddress = styled.p`
+  font-size: 0.85rem;
+  color: ${({ theme }) => theme.text};
+  text-align: left;
+  margin: 5px 0;
+  word-break: break-all;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const ScrollButton = styled.button`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  color: ${({ theme }) => theme.buttonBg};
+  font-size: 2.5rem;
+  cursor: pointer;
+
+  width: 60px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ${({ direction }) => (direction === 'left' ? 'left: 0;' : 'right: 0;')}
+
+  &:hover {
+    transform: translateY(calc(-50% - 3px));
+    transition: all 0.3s ease;
+    opacity: 1;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+`;
 
 function WalletList({ wallets }) {
   const listRef = useRef(null);
@@ -20,6 +113,7 @@ function WalletList({ wallets }) {
   const [isLeftDisabled, setIsLeftDisabled] = useState(true);
   const [isRightDisabled, setIsRightDisabled] = useState(false);
 
+  // Set card width based on screen size
   useEffect(() => {
     if (listRef.current) {
       const firstCard = listRef.current.querySelector('li');
@@ -30,6 +124,7 @@ function WalletList({ wallets }) {
     }
   }, [wallets]);
 
+  // Disable scroll buttons at list start/end
   useEffect(() => {
     if (listRef.current) {
       const maxScroll =
@@ -39,6 +134,7 @@ function WalletList({ wallets }) {
     }
   }, [scrollPosition, wallets.length]);
 
+  // Actual scroll process on click
   const handleScroll = direction => {
     if (!listRef.current) return;
 
