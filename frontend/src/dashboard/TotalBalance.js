@@ -1,4 +1,5 @@
 import React from 'react';
+import { SectionHeading, Description } from '../styles/CommonStyles';
 
 function TotalBalance({ wallets }) {
   const totalBalance = wallets.reduce((total, wallet) => {
@@ -9,12 +10,12 @@ function TotalBalance({ wallets }) {
 
   return (
     <div>
-      <h2>Total Balance</h2>
-      <p>
+      <SectionHeading>Total Balance</SectionHeading>
+      <Description>
         {wallets.some(wallet => wallet.balance === undefined)
           ? 'Fetching...'
           : `${totalBalance.toFixed(6)} ETH`}
-      </p>
+      </Description>
     </div>
   );
 }

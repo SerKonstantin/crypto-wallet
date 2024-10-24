@@ -9,6 +9,7 @@ import {
   SmallText,
   WalletAddress,
   TextLink,
+  SectionHeading,
 } from '../styles/CommonStyles';
 
 function WalletList({ wallets }) {
@@ -60,9 +61,12 @@ function WalletList({ wallets }) {
 
   if (wallets.length === 0) {
     return (
-      <Description>
-        <TextLink to="/create-wallet">Create your first wallet</TextLink>
-      </Description>
+      <div>
+        <SectionHeading>Wallets</SectionHeading>
+        <Description>
+          <TextLink to="/create-wallet">Create your first wallet</TextLink>
+        </Description>
+      </div>
     );
   }
 

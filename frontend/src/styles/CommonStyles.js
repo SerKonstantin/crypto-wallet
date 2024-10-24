@@ -22,7 +22,7 @@ export const ButtonGroup = styled.div`
   gap: 20px;
 `;
 
-export const SectionHeading = styled.h3`
+export const SectionHeading = styled.h2`
   margin-top: 50px;
   font-size: 2rem;
   color: ${({ theme }) => theme.text};
@@ -135,7 +135,6 @@ export const WalletCard = styled.li`
     ${({ theme }) => theme.body} 30%,
     #f9f9f9 100%
   );
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -143,8 +142,8 @@ export const WalletCard = styled.li`
   cursor: pointer;
 
   &:hover {
-    transform: translateY(-3px);
-    transition: all 0.3s ease;
+    background: ${({ theme }) => theme.hoverBg};
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   }
 `;
 

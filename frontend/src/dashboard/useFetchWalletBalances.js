@@ -37,7 +37,7 @@ function useFetchWalletBalances(wallets) {
 
       const hasError = updatedWallets.some(wallet => wallet.error);
       if (hasError) {
-        setFetchError('Failed to fetch balances.');
+        setFetchError('Failed to fetch balances. Please try again later');
       }
 
       setWalletsWithBalances(updatedWallets);

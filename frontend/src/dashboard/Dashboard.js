@@ -24,5 +24,5 @@ function Dashboard({ data }) {
 
 export default withApiData(Dashboard, [
   () => axiosClient.get(`/wallets`),
-  () => axiosClient.get(`/wallets/transactions`),
+  () => axiosClient.get(`/transactions`),
 ]);
