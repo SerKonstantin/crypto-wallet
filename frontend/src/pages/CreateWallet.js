@@ -5,15 +5,12 @@ import { generateMnemonic } from 'bip39';
 import { HDNodeWallet } from 'ethers';
 import axiosClient from '../utils/axiosClient';
 import ErrorDisplay from '../components/ErrorDisplay';
-// import FlashMessage from '../components/FlashMessage';
 
 function CreateWallet() {
   const [walletName, setWalletName] = useState('');
   const [passphrase, setPassphrase] = useState('');
-  const [confirmWord1, setConfirmWord1] = useState('');
-  const [confirmWord2, setConfirmWord2] = useState('');
-  const [wordIndex1, setWordIndex1] = useState(0);
-  const [wordIndex2, setWordIndex2] = useState(0);
+  const [confirmWords, setConfirmWords] = useState(['', '']);
+  const [wordIndices, setWordIndices] = useState([]);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [errors, setErrors] = useState({});
   const [showPassphrase, setShowPassphrase] = useState(true);
@@ -30,9 +27,8 @@ function CreateWallet() {
       const generatedPassphrase = generateMnemonic();
       setPassphrase(generatedPassphrase);
 
-      const wordIndices = getRandomIndices(generatedPassphrase.split(' ')); // TODO words and indeces in list/arr
-      setWordIndex1(wordIndices[0]);
-      setWordIndex2(wordIndices[1]);
+      const indices = getRandomIndices(generatedPassphrase.split(' '));
+      setWordIndices(indices);
     } catch (e) {
       setErrors({
         passphraseGeneration:
@@ -65,11 +61,19 @@ function CreateWallet() {
       });
   };
 
+  const handleConfirmWordChange = (index, value) => {
+    setConfirmWords(prevWords => {
+      const newWords = [...prevWords];
+      newWords[index] = value;
+      return newWords;
+    });
+  };
+
   // Confirm passphrase by asking for specific words
   const handlePassphraseConfirmation = () => {
     const words = passphrase.split(' ');
 
-    if (!confirmWord1 || !confirmWord2) {
+    if (!confirmWords[0] || !confirmWords[1]) {
       setErrors({
         passphraseConfirmation:
           'Please enter both words to confirm your passphrase.',
@@ -78,8 +82,8 @@ function CreateWallet() {
     }
 
     if (
-      words[wordIndex1] === confirmWord1 &&
-      words[wordIndex2] === confirmWord2
+      words[wordIndices[0]] === confirmWords[0] &&
+      words[wordIndices[1]] === confirmWords[1]
     ) {
       setIsConfirmed(true);
       setErrors([]);
@@ -109,7 +113,6 @@ function CreateWallet() {
       await axiosClient.post(`/wallets`, walletData);
       sessionStorage.setItem('flashMessage', 'Wallet created successfully!');
       sessionStorage.setItem('flashType', 'success');
-
       navigate('/dashboard');
     } catch (err) {
       if (err.response && err.response.data && err.response.data.errors) {
@@ -158,20 +161,20 @@ function CreateWallet() {
         <div>
           <h3>Confirm Your Passphrase</h3>
           <p>
-            Please enter word #{wordIndex1 + 1} and word #{wordIndex2 + 1} from
-            your passphrase:
+            Please enter word #{wordIndices[0] + 1} and word #
+            {wordIndices[1] + 1} from your passphrase:
           </p>
           <input
             type="text"
-            value={confirmWord1}
-            onChange={e => setConfirmWord1(e.target.value)}
-            placeholder={`Enter word #${wordIndex1 + 1}`}
+            value={confirmWords[0]}
+            onChange={e => handleConfirmWordChange(0, e.target.value)}
+            placeholder={`Enter word #${wordIndices[0] + 1}`}
           />
           <input
             type="text"
-            value={confirmWord2}
-            onChange={e => setConfirmWord2(e.target.value)}
-            placeholder={`Enter word #${wordIndex2 + 1}`}
+            value={confirmWords[1]}
+            onChange={e => handleConfirmWordChange(1, e.target.value)}
+            placeholder={`Enter word #${wordIndices[1] + 1}`}
           />
           <button onClick={handlePassphraseConfirmation}>
             Confirm Passphrase
@@ -200,14 +203,6 @@ function CreateWallet() {
           {errors.form && <ErrorDisplay errors={errors.form} />}
         </div>
       )}
-
-      {/* Display the wallet address after creation     DELETE LATER*/}
-      {/* {walletAddress && (
-        <div>
-          <h3>Wallet Address:</h3>
-          <p>{walletAddress}</p>
-        </div>
-      )} */}
     </div>
   );
 }
