@@ -15,7 +15,7 @@ export const PassphraseWord = styled.div`
   font-size: 1.3rem;
   font-weight: bold;
   padding: 1rem;
-  border: 1px solid ${({ theme }) => theme.primary};
+  border: 1px solid ${({ theme }) => theme.buttonBg};
   border-radius: 8px;
   background-color: ${({ theme }) => theme.secondaryBackground};
   display: flex;
@@ -30,10 +30,10 @@ export const NumberedLabel = styled.span`
 `;
 
 export const WarningMessage = styled.div`
-  background-color: ${({ theme }) => theme.infoBg};
+  background-color: ${({ theme }) => theme.secondaryBackground};
   color: ${({ theme }) => theme.infoText};
   padding: 1.5rem;
-  border: 1px solid ${({ theme }) => theme.borderColor};
+  border: 1px solid ${({ theme }) => theme.buttonBg};
   border-radius: 8px;
   margin-bottom: 1.5rem;
   font-size: 1.1rem;

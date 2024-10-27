@@ -52,15 +52,6 @@ function Colors() {
       <ColorSwatch
         color={{
           background: ({ theme }) => theme.body,
-          text: ({ theme }) => theme.primary,
-        }}
-      >
-        <Title>Body / Primary</Title>
-        <Description>Background: body / Text: primary</Description>
-      </ColorSwatch>
-      <ColorSwatch
-        color={{
-          background: ({ theme }) => theme.body,
           text: ({ theme }) => theme.labelColor,
         }}
       >
@@ -106,17 +97,6 @@ function Colors() {
       >
         <Title>Secondary BG / Text</Title>
         <Description>Background: secondaryBackground / Text: text</Description>
-      </ColorSwatch>
-      <ColorSwatch
-        color={{
-          background: ({ theme }) => theme.secondaryBackground,
-          text: ({ theme }) => theme.primary,
-        }}
-      >
-        <Title>Secondary BG / Primary</Title>
-        <Description>
-          Background: secondaryBackground / Text: primary
-        </Description>
       </ColorSwatch>
       <ColorSwatch
         color={{
@@ -170,15 +150,6 @@ function Colors() {
       >
         <Title>Info BG / Text</Title>
         <Description>Background: infoBg / Text: text</Description>
-      </ColorSwatch>
-      <ColorSwatch
-        color={{
-          background: ({ theme }) => theme.infoBg,
-          text: ({ theme }) => theme.primary,
-        }}
-      >
-        <Title>Info BG / Primary</Title>
-        <Description>Background: infoBg / Text: primary</Description>
       </ColorSwatch>
       <ColorSwatch
         color={{
