@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axiosClient from '../utils/axiosClient';
+import usePostRequestWithFeedback from '../hooks/usePostRequestWithFeedback';
 import ErrorDisplay from '../components/ErrorDisplay';
 import {
   Container,
@@ -19,41 +18,25 @@ function Register() {
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
   const [errors, setErrors] = useState({});
-  const navigate = useNavigate();
+  const performPostRequestWithFeedback = usePostRequestWithFeedback();
 
   const handleSubmit = async event => {
     event.preventDefault();
+
     setErrors({});
+    const data = {
+      email,
+      password,
+      nickname,
+    };
 
-    try {
-      await axiosClient.post(`/profile`, {
-        email,
-        password,
-        nickname,
-      });
-
-      sessionStorage.setItem(
-        'flashMessage',
-        'Registration successful! Please log in.'
-      );
-      sessionStorage.setItem('flashType', 'success');
-
-      navigate('/login');
-    } catch (err) {
-      if (err.response && err.response.data && err.response.data.errors) {
-        setErrors(err.response.data.errors);
-      } else if (err.response) {
-        setErrors({
-          form: 'An error occurred during registration. Please try again later.',
-        });
-      } else if (err.request) {
-        setErrors({
-          form: 'Unable to reach the server. Please ensure the backend is running.',
-        });
-      } else {
-        setErrors({ form: 'An unexpected error occurred. Please try again.' });
-      }
-    }
+    performPostRequestWithFeedback({
+      url: '/profile',
+      data,
+      successMessage: 'Registration successful! Please sign in.',
+      redirectTo: '/login',
+      setErrors,
+    });
   };
 
   return (
