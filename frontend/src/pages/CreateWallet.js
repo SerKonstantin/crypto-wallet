@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Buffer } from 'buffer';
 import { generateMnemonic } from 'bip39';
 import { HDNodeWallet } from 'ethers';
-import axiosClient from '../utils/axiosClient';
 import usePostRequestWithFeedback from '../hooks/usePostRequestWithFeedback';
 import ErrorDisplay from '../components/ErrorDisplay';
 
@@ -16,7 +14,6 @@ function CreateWallet() {
   const [errors, setErrors] = useState({});
   const [showPassphrase, setShowPassphrase] = useState(true);
   const [infoMessage, setInfoMessage] = useState('');
-  const navigate = useNavigate();
   const performPostRequestWithFeedback = usePostRequestWithFeedback();
 
   if (!window.Buffer) {
@@ -71,7 +68,6 @@ function CreateWallet() {
     });
   };
 
-  // Confirm passphrase by asking for specific words
   const handlePassphraseConfirmation = () => {
     const words = passphrase.split(' ');
 
@@ -97,7 +93,6 @@ function CreateWallet() {
     }
   };
 
-  // Create wallet if passphrase is confirmed
   // TODO Add wallet name validation before saving
   const createWallet = async () => {
     if (!isConfirmed) {
@@ -118,26 +113,6 @@ function CreateWallet() {
       redirectTo: '/dashboard',
       setErrors,
     });
-
-    //   await axiosClient.post(`/wallets`, walletData);
-    //   sessionStorage.setItem('flashMessage', 'Wallet created successfully!');
-    //   sessionStorage.setItem('flashType', 'success');
-    //   navigate('/dashboard');
-    // } catch (err) {
-    //   if (err.response && err.response.data && err.response.data.errors) {
-    //     setErrors(err.response.data.errors);
-    //   } else if (err.response) {
-    //     setErrors({
-    //       form: 'An error occurred during wallet creation. Please try again later.',
-    //     });
-    //   } else if (err.request) {
-    //     setErrors({
-    //       form: 'Unable to reach the server. Please ensure the backend is running.',
-    //     });
-    //   } else {
-    //     setErrors({ form: 'An unexpected error occurred. Please try again.' });
-    //   }
-    // }
   };
 
   const confirmPassphraseSaved = () => {
