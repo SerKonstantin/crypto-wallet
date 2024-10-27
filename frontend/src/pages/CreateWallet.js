@@ -206,7 +206,9 @@ function CreateWallet() {
               onChange={e => setWalletName(e.target.value)}
               placeholder="Enter wallet name"
             />
-            {errors.name && <ErrorDisplay errors={errors.name} />}
+            {errors['wallet name'] && (
+              <ErrorDisplay errors={errors['wallet name']} />
+            )}
           </div>
           <button onClick={createWallet}>Create Wallet</button>
           {errors.form && <ErrorDisplay errors={errors.form} />}

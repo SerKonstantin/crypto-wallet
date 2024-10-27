@@ -40,7 +40,7 @@ public class WalletService {
         var currentUser = userUtils.getCurrentUser();
         var wallet = walletMapper.map(walletCreateDTO);
         if (currentUser.getWallets().stream().anyMatch(w -> w.getName().equals(wallet.getName()))) {
-            throw new ResourceAlreadyExistsException("A wallet with this name already exists");
+            throw new ResourceAlreadyExistsException("wallet name");
         }
 
         var slug = slugUtils.toUniqueSlug(wallet.getName(), currentUser.getWallets());
@@ -76,7 +76,7 @@ public class WalletService {
         var wallet = slugUtils.getWalletByUserAndSlug(currentUser, slug);
 
         if (currentUser.getWallets().stream().anyMatch(w -> w.getName().equals(walletUpdateDTO.getName()))) {
-            throw new ResourceAlreadyExistsException("A wallet with this name already exists");
+            throw new ResourceAlreadyExistsException("wallet");
         }
 
         walletMapper.update(walletUpdateDTO, wallet);
@@ -100,7 +100,7 @@ public class WalletService {
         var currentUser = userUtils.getCurrentUser();
         var wallet = walletMapper.map(walletImportDTO);
         if (currentUser.getWallets().stream().anyMatch(w -> w.getName().equals(wallet.getName()))) {
-            throw new ResourceAlreadyExistsException("A wallet with this name already exists");
+            throw new ResourceAlreadyExistsException("wallet");
         }
 
         Credentials credentials;
@@ -112,7 +112,7 @@ public class WalletService {
 
         String address = credentials.getAddress();
         if (walletRepository.findByAddress(address).isPresent()) {
-            throw new ResourceAlreadyExistsException("A wallet with this address already exists");
+            throw new ResourceAlreadyExistsException("wallet");
         }
 
         wallet.setAddress(address);
