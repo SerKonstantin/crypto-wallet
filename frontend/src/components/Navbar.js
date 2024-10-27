@@ -40,7 +40,7 @@ const Navbar = () => {
           <StyledLink to="/dashboard">Dashboard</StyledLink>
         </NavItem>
         <NavItem>
-          <StyledLink to="/wallets">Wallets</StyledLink>
+          <StyledLink to="/colors">Colors</StyledLink>
         </NavItem>
       </NavList>
     </Nav>
