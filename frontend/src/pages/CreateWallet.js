@@ -119,6 +119,16 @@ function CreateWallet() {
     setShowPassphrase(false);
   };
 
+  if (errors.passphraseGeneration) {
+    return (
+      <div>
+        <h2>Error</h2>
+        <p>{errors.passphraseGeneration}</p>
+        <button onClick={() => window.location.reload()}>Try Again</button>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h1>Create Your Wallet</h1>
