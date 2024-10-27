@@ -4,15 +4,31 @@ import { generateMnemonic } from 'bip39';
 import { HDNodeWallet } from 'ethers';
 import usePostRequestWithFeedback from '../hooks/usePostRequestWithFeedback';
 import ErrorDisplay from '../components/ErrorDisplay';
+import Button from '../components/Button';
+import {
+  Container,
+  ButtonGroup,
+  SectionHeading,
+  Form,
+  FormField,
+  Input,
+  Label,
+} from '../styles/CommonStyles';
+import {
+  PassphraseGrid,
+  PassphraseWord,
+  NumberedLabel,
+  WarningMessage,
+  InfoMessage,
+} from '../styles/CreateWalletStyles';
 
 function CreateWallet() {
+  const [step, setStep] = useState('intro');
   const [walletName, setWalletName] = useState('');
   const [passphrase, setPassphrase] = useState('');
   const [confirmWords, setConfirmWords] = useState(['', '']);
   const [wordIndices, setWordIndices] = useState([]);
-  const [isConfirmed, setIsConfirmed] = useState(false);
   const [errors, setErrors] = useState({});
-  const [showPassphrase, setShowPassphrase] = useState(true);
   const [infoMessage, setInfoMessage] = useState('');
   const performPostRequestWithFeedback = usePostRequestWithFeedback();
 
@@ -49,7 +65,7 @@ function CreateWallet() {
     navigator.clipboard
       .writeText(passphrase)
       .then(() => {
-        setErrors([]);
+        setErrors({});
         setInfoMessage('Passphrase copied to clipboard!');
         setTimeout(() => setInfoMessage(''), 3000);
       })
@@ -83,8 +99,8 @@ function CreateWallet() {
       words[wordIndices[0]] === confirmWords[0] &&
       words[wordIndices[1]] === confirmWords[1]
     ) {
-      setIsConfirmed(true);
-      setErrors([]);
+      setStep('walletCreation');
+      setErrors({});
     } else {
       setErrors({
         passphraseConfirmation:
@@ -95,7 +111,7 @@ function CreateWallet() {
 
   // TODO Add wallet name validation before saving
   const createWallet = async () => {
-    if (!isConfirmed) {
+    if (step !== 'walletCreation') {
       setErrors({ form: 'Please confirm your passphrase first.' });
       return;
     }
@@ -115,10 +131,6 @@ function CreateWallet() {
     });
   };
 
-  const confirmPassphraseSaved = () => {
-    setShowPassphrase(false);
-  };
-
   if (errors.passphraseGeneration) {
     return (
       <div>
@@ -129,78 +141,111 @@ function CreateWallet() {
     );
   }
 
-  return (
-    <div>
-      <h1>Create Your Wallet</h1>
+  if (step === 'intro') {
+    return (
+      <Container>
+        <SectionHeading>Create Your Wallet</SectionHeading>
+        <WarningMessage>
+          Your passphrase (seed phrase) is the only way to access your wallet.
+          <br />
+          <strong>Important:</strong> If you lose it, you’ll lose access to your
+          wallet forever. If someone else gains access, they can access your
+          funds. Ensure you save it securely.
+        </WarningMessage>
+        <Button onClick={() => setStep('showPassphrase')}>I Understand</Button>
+      </Container>
+    );
+  }
 
-      {infoMessage && <div>{infoMessage}</div>}
-
-      {/* Display Generated Passphrase */}
-      {showPassphrase && (
-        <div>
-          <h3>Your Passphrase (Seed Phrase):</h3>
-          <p>{passphrase}</p>
-          <button onClick={copyPassphraseToClipboard}>Copy to Clipboard</button>
-          <button onClick={confirmPassphraseSaved}>
+  if (step === 'showPassphrase') {
+    const passphraseWords = passphrase ? passphrase.split(' ') : [];
+    return (
+      <Container>
+        <SectionHeading>Your Passphrase (Seed Phrase):</SectionHeading>
+        <PassphraseGrid>
+          {passphraseWords.map((word, index) => (
+            <PassphraseWord key={index}>
+              <NumberedLabel>{index + 1}</NumberedLabel> {word}
+            </PassphraseWord>
+          ))}
+        </PassphraseGrid>
+        <ButtonGroup>
+          <Button onClick={copyPassphraseToClipboard}>Copy to Clipboard</Button>
+          <Button onClick={() => setStep('confirmPassphrase')}>
             I have saved my passphrase
-          </button>
-          {errors.copyToClipboard && (
-            <ErrorDisplay errors={errors.copyToClipboard} />
-          )}
-        </div>
-      )}
+          </Button>
+        </ButtonGroup>
+        {errors.copyToClipboard && (
+          <ErrorDisplay errors={errors.copyToClipboard} />
+        )}
+        {infoMessage && <InfoMessage>{infoMessage}</InfoMessage>}
+      </Container>
+    );
+  }
 
-      {/* Passphrase Confirmation */}
-      {!showPassphrase && !isConfirmed && (
-        <div>
-          <h3>Confirm Your Passphrase</h3>
-          <p>
-            Please enter word #{wordIndices[0] + 1} and word #
-            {wordIndices[1] + 1} from your passphrase:
-          </p>
-          <input
-            type="text"
-            value={confirmWords[0]}
-            onChange={e => handleConfirmWordChange(0, e.target.value)}
-            placeholder={`Enter word #${wordIndices[0] + 1}`}
-          />
-          <input
-            type="text"
-            value={confirmWords[1]}
-            onChange={e => handleConfirmWordChange(1, e.target.value)}
-            placeholder={`Enter word #${wordIndices[1] + 1}`}
-          />
-          <button onClick={handlePassphraseConfirmation}>
+  if (step === 'confirmPassphrase') {
+    return (
+      <Container>
+        <SectionHeading>Confirm Your Passphrase</SectionHeading>
+        <p>
+          Please enter word #{wordIndices[0] + 1} and word #{wordIndices[1] + 1}{' '}
+          from your passphrase:
+        </p>
+        <Form>
+          <FormField>
+            <Label>Word #{wordIndices[0] + 1}</Label>
+            <Input
+              type="text"
+              value={confirmWords[0]}
+              onChange={e => handleConfirmWordChange(0, e.target.value)}
+              placeholder={`Enter word #${wordIndices[0] + 1}`}
+            />
+          </FormField>
+          <FormField>
+            <Label>Word #{wordIndices[1] + 1}</Label>
+            <Input
+              type="text"
+              value={confirmWords[1]}
+              onChange={e => handleConfirmWordChange(1, e.target.value)}
+              placeholder={`Enter word #${wordIndices[1] + 1}`}
+            />
+          </FormField>
+          <Button type="button" onClick={handlePassphraseConfirmation}>
             Confirm Passphrase
-          </button>
-          {errors.passphraseConfirmation && (
-            <ErrorDisplay errors={errors.passphraseConfirmation} />
-          )}
-        </div>
-      )}
+          </Button>
+        </Form>
+        {errors.passphraseConfirmation && (
+          <ErrorDisplay errors={errors.passphraseConfirmation} />
+        )}
+      </Container>
+    );
+  }
 
-      {/* Wallet name input and create wallet button */}
-      {isConfirmed && (
-        <div>
-          <h3>Passphrase confirmed!</h3>
-          <div>
-            <label>Wallet Name:</label>
-            <input
+  if (step === 'walletCreation') {
+    return (
+      <Container>
+        <SectionHeading>Passphrase confirmed!</SectionHeading>
+        <Form>
+          <FormField>
+            <Label>Wallet Name:</Label>
+            <Input
               type="text"
               value={walletName}
               onChange={e => setWalletName(e.target.value)}
               placeholder="Enter wallet name"
             />
-            {errors['wallet name'] && (
-              <ErrorDisplay errors={errors['wallet name']} />
-            )}
-          </div>
-          <button onClick={createWallet}>Create Wallet</button>
-          {errors.form && <ErrorDisplay errors={errors.form} />}
-        </div>
-      )}
-    </div>
-  );
+          </FormField>
+          <Button type="button" onClick={createWallet}>
+            Create Wallet
+          </Button>
+          {errors['wallet name'] && (
+            <ErrorDisplay errors={errors['wallet name']} />
+          )}
+        </Form>
+        {errors.form && <ErrorDisplay errors={errors.form} />}
+      </Container>
+    );
+  }
 }
 
 export default CreateWallet;

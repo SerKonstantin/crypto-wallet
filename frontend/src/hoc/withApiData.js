@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import ErrorDisplay from '../components/ErrorDisplay';
+import { Container } from '../styles/CommonStyles';
 
 function withApiData(WrappedComponent, apiCallback) {
   return function ComponentWithApiData(props) {
@@ -49,7 +50,11 @@ function withApiData(WrappedComponent, apiCallback) {
     }, [apiCallbacks]);
 
     if (loading) {
-      return <div>Loading...</div>;
+      return (
+        <Container>
+          <div>Loading...</div>
+        </Container>
+      );
     }
 
     if (hasError) {

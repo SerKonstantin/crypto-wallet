@@ -1,11 +1,17 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { Link } from 'react-router-dom';
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
 
 export const Container = styled.div`
   max-width: 960px;
   margin: 0 auto;
   padding: 20px 20px;
   text-align: center;
+  animation: ${fadeIn} 0.5s ease-in-out;
 `;
 
 export const Title = styled.h1`
