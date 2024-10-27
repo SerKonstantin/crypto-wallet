@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const FlashMessage = () => {
   const [flashMessage, setFlashMessage] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
+    setFlashMessage(null);
+
     const message = sessionStorage.getItem('flashMessage');
     const type = sessionStorage.getItem('flashType');
 
@@ -12,7 +16,7 @@ const FlashMessage = () => {
       sessionStorage.removeItem('flashMessage');
       sessionStorage.removeItem('flashType');
     }
-  }, []);
+  }, [location]);
 
   if (!flashMessage) {
     return null;

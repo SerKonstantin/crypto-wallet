@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosClient from '../utils/axiosClient';
 import ErrorDisplay from '../components/ErrorDisplay';
-import FlashMessage from '../components/FlashMessage';
 import {
   Container,
   SectionHeading,
@@ -47,8 +46,6 @@ function Login() {
 
   return (
     <Container>
-      <FlashMessage />
-
       <SectionHeading>Please, sign in to continue</SectionHeading>
 
       <Form onSubmit={handleSubmit}>

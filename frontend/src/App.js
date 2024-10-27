@@ -10,12 +10,14 @@ import Wallets from './pages/Wallets';
 import CreateWallet from './pages/CreateWallet';
 import WalletDetails from './pages/WalletDetails';
 import TransactionDetails from './pages/TransactionDetails';
+import FlashMessage from './components/FlashMessage';
 
 function App() {
   return (
     <ThemeWrapper>
       <Router>
         <Navbar />
+        <FlashMessage />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
