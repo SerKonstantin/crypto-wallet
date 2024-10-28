@@ -15,7 +15,7 @@ Work in progress, so not deployed online yet.
 - Client side - React, JavaScript, Web3
 - DB -  PostgreSQL, H2, JPA
 - Testing - JUnit5, Jest, JaCoCo, Postman
-- Planned Deployment - Github Workflows, Docker, Sentry, Swagger
+- Planned Deployment - Github Workflows CI, Docker, Sentry, Swagger
 
 ## To run app locally
 1. **Register for an Infura API Key:**  
