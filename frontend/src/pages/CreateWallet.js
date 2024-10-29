@@ -79,7 +79,7 @@ function CreateWallet() {
   const handleConfirmWordChange = (index, value) => {
     setConfirmWords(prevWords => {
       const newWords = [...prevWords];
-      newWords[index] = value;
+      newWords[index] = value.trim().toLowerCase();
       return newWords;
     });
   };
@@ -231,7 +231,7 @@ function CreateWallet() {
             <Input
               type="text"
               value={walletName}
-              onChange={e => setWalletName(e.target.value)}
+              onChange={e => setWalletName(e.target.value.trim())}
               placeholder="Enter wallet name"
             />
           </FormField>
