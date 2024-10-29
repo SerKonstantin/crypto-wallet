@@ -14,13 +14,11 @@ const Button = styled.button`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 
-  // Auto adjust width for form submit buttons
-  ${({ type }) =>
-    type === 'submit' &&
-    `
+  // Auto adjust width for any buttons inside a form
+  form & {
     width: 100%;
     margin: 20px 0 0 0;
-  `}
+  }
 
   &:hover {
     background-color: ${({ theme }) => theme.buttonBgHover || theme.buttonBg};
