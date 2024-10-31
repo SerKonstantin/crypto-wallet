@@ -1,53 +1,42 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
+import axiosClient from '../utils/axiosClient';
 import ErrorDisplay from '../components/ErrorDisplay';
 import { Container } from '../styles/CommonStyles';
 
-function withApiData(WrappedComponent, apiCallback) {
+function withApiData(WrappedComponent, paths) {
   return function ComponentWithApiData(props) {
     const [loading, setLoading] = useState(true);
-    const [errors, setErrors] = useState([]);
-    const [hasError, setHasError] = useState(false);
+    const [error, setError] = useState([]);
     const [data, setData] = useState([]);
-
-    // To support both array and non-array args
-    const apiCallbacks = useMemo(() => {
-      return Array.isArray(apiCallback) ? apiCallback : [apiCallback];
-    }, []);
 
     useEffect(() => {
       const fetchData = async () => {
         setLoading(true);
-        const results = [];
-        const errorMessages = [];
+        setError(null);
 
-        for (const callback of apiCallbacks) {
-          try {
-            const result = await callback();
-            results.push(result.data);
-            errorMessages.push(null);
-          } catch (err) {
-            setHasError(true);
-            if (err.response) {
-              errorMessages.push('An error occurred while fetching data.');
-            } else if (err.request) {
-              errorMessages.push(
-                'Server is unavailable. Please try again later.'
-              );
-            } else {
-              errorMessages.push(
-                'An unexpected error occurred. Please try again later.'
-              );
-            }
+        try {
+          const responses = await Promise.all(
+            paths.map(path => {
+              const url = typeof path === 'function' ? path() : path;
+              return axiosClient.get(url);
+            })
+          );
+          setData(responses.map(response => response.data));
+        } catch (err) {
+          if (err.response) {
+            setError('An error occurred while fetching data.');
+          } else if (err.request) {
+            setError('Server is unavailable. Please try again later.');
+          } else {
+            setError('An unexpected error occurred. Please try again later.');
           }
         }
 
-        setData(results);
-        setErrors(errorMessages.filter(Boolean));
         setLoading(false);
       };
 
       fetchData();
-    }, [apiCallbacks]);
+    }, [paths]);
 
     if (loading) {
       return (
@@ -57,8 +46,12 @@ function withApiData(WrappedComponent, apiCallback) {
       );
     }
 
-    if (hasError) {
-      return <ErrorDisplay errors={errors} />;
+    if (error) {
+      return (
+        <Container>
+          <ErrorDisplay errors={error} />
+        </Container>
+      );
     }
 
     return <WrappedComponent data={data} {...props} />;

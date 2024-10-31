@@ -3,8 +3,7 @@ import TotalBalance from './TotalBalance';
 import WalletList from './WalletList';
 import RecentTransactions from './RecentTransactions';
 import withApiData from '../hoc/withApiData';
-import axiosClient from '../utils/axiosClient';
-import useFetchWalletBalances from './useFetchWalletBalances';
+import useFetchWalletBalances from '../hooks/useFetchWalletBalances';
 import ErrorDisplay from '../components/ErrorDisplay';
 import { Container } from '../styles/CommonStyles';
 
@@ -22,7 +21,4 @@ function Dashboard({ data }) {
   );
 }
 
-export default withApiData(Dashboard, [
-  () => axiosClient.get(`/wallets`),
-  () => axiosClient.get(`/transactions`),
-]);
+export default withApiData(Dashboard, ['/wallets', '/transactions']);
